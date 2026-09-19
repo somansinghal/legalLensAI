@@ -3,6 +3,8 @@ Allow: /
 
 Disallow: /dashboard
 Disallow: /dashboard.html
+Disallow: /account
+Disallow: /account.html
 Disallow: /api/
 Disallow: /artifacts/
 Disallow: /playwright-report/

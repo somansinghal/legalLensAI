@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8">
   <title>Workspace — LegalLens AI</title>
-  <meta name="description" content="LegalLens AI document workspace.">
+  <meta name="description" content="LegalLens AI context-aware legal document intelligence workspace. Understand before you sign.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#060a14">
   <link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg">
+  <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/product.css">
+  <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body>
 <header class="site-header workspace-header">
@@ -20,38 +22,95 @@
     <img class="nav-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
     <span><strong>LEGAL<span class="accent-text">LENS</span></strong><small>AI DOCUMENT INTELLIGENCE</small></span>
   </a>
+
   <nav class="workspace-nav" aria-label="Workspace navigation">
-    <a href="#analysis-start-title" class="active">Workspace</a>
-    <a href="#historySection">History</a>
-    <a href="/contact.html">Help</a>
+    <a href="#analysis-workspace" class="active" id="navWorkspace">Workspace</a>
+    <a href="#historySection" id="navHistory">History</a>
+    <a href="/account.html" id="navAccount">Account</a>
+    <a href="/contact.html" id="navHelp">Help</a>
   </nav>
-  <div class="account-actions">
-    <span id="userEmail" class="user-label"></span>
-    <button id="logoutButton" class="nav-cta" type="button">Log out</button>
+
+  <div class="topbar-actions">
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <button class="theme-toggle-btn" type="button" data-theme-btn aria-label="Select color theme" aria-expanded="false">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span id="currentThemeLabel">Theme</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div class="theme-menu" hidden>
+        <button class="theme-option" type="button" data-theme-value="system">
+          <span class="theme-icon" aria-hidden="true">⚙</span> System
+        </button>
+        <button class="theme-option" type="button" data-theme-value="dark">
+          <span class="theme-icon" aria-hidden="true">☾</span> Dark
+        </button>
+        <button class="theme-option" type="button" data-theme-value="light">
+          <span class="theme-icon" aria-hidden="true">☼</span> Light
+        </button>
+      </div>
+    </div>
+
+    <!-- User Account Menu -->
+    <div class="user-menu-container">
+      <button id="userMenuButton" class="user-menu-btn" type="button" aria-expanded="false" aria-label="User account menu">
+        <span class="user-avatar" id="userAvatar">U</span>
+        <span id="userDisplayName" class="user-label">Judge Demo User</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div id="userDropdown" class="user-dropdown" hidden>
+        <div class="dropdown-header">
+          <strong id="dropdownName">Judge Demo User</strong>
+          <small id="dropdownEmail">judge@legallensai-india.vercel.app</small>
+        </div>
+        <a href="/account.html" class="dropdown-item">
+          <span aria-hidden="true">👤</span> Account Profile
+        </a>
+        <a href="/account.html#preferences" class="dropdown-item">
+          <span aria-hidden="true">⚙</span> Preferences
+        </a>
+        <a href="/contact.html" class="dropdown-item">
+          <span aria-hidden="true">✉</span> Help & Support
+        </a>
+        <div class="dropdown-divider"></div>
+        <button id="logoutButton" class="dropdown-item danger" type="button">
+          <span aria-hidden="true">⇥</span> Log out
+        </button>
+      </div>
+    </div>
+
+    <button id="topbarLogout" class="button button-secondary" type="button" style="padding:0.4rem 0.85rem;font-size:0.76rem;">Log out</button>
   </div>
 </header>
+
 <main class="dashboard section-shell">
+  <!-- Hero Section -->
   <section class="dashboard-hero">
-    <p class="eyebrow">YOUR DOCUMENT WORKSPACE</p>
+    <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> LEGAL DOCUMENT INTELLIGENCE WORKSPACE</p>
     <h1>See what matters.<br><em>Move forward informed.</em></h1>
-    <p>Select your situation and goal, then analyze a synthetic demo agreement or paste your own text. Insights remain informational and should be discussed with a qualified legal professional.</p>
+    <p>Understand your document, identify obligations, surface important dates, and prepare better questions for a qualified legal professional.</p>
   </section>
-  <section class="analysis-controls glass-card" aria-labelledby="analysis-start-title">
+
+  <!-- Workspace Controls -->
+  <section id="analysis-workspace" class="control-card glass-card" aria-labelledby="analysis-start-title">
     <div class="control-heading">
       <p class="eyebrow">START AN ANALYSIS</p>
       <h2 id="analysis-start-title">Put your context first.</h2>
+      <p>Configure your situation and goal. LegalLens AI analyzes clauses in context rather than generating generic advice.</p>
     </div>
+
     <div class="form-grid">
-      <label>Situation
+      <label for="persona">Situation
         <select id="persona">
-          <option value="employee">Employee</option>
-          <option value="freelancer">Freelancer</option>
-          <option value="student">Student</option>
-          <option value="business_owner">Business Owner</option>
-          <option value="other">Other</option>
+          <option value="employee">Employee — reviewing an employment or consulting contract</option>
+          <option value="freelancer">Freelancer — reviewing client terms or service agreements</option>
+          <option value="student">Student — reviewing internship, academic, or training terms</option>
+          <option value="business_owner">Business Owner — reviewing commercial terms or NDAs</option>
+          <option value="other">Other — general legal document clarity</option>
         </select>
       </label>
-      <label>Goal
+
+      <label for="intent">Goal
         <select id="intent">
           <option value="understand_before_signing">Understand before signing</option>
           <option value="find_obligations">Find my obligations</option>
@@ -61,30 +120,80 @@
         </select>
       </label>
     </div>
-    <div class="demo-documents">
-      <h3>Try a synthetic demo</h3>
-      <div id="demoList" class="demo-list">
-        <p class="muted">Loading demo documents…</p>
+
+    <!-- Document Source Selection -->
+    <div class="source-selection">
+      <div class="source-tabs" role="tablist" aria-label="Document source options">
+        <button id="tabDemo" class="source-tab-btn active" role="tab" aria-selected="true" aria-controls="panelDemo" type="button">
+          A) Synthetic demo agreements
+        </button>
+        <button id="tabPaste" class="source-tab-btn" role="tab" aria-selected="false" aria-controls="panelPaste" type="button">
+          B) Paste text
+        </button>
+        <button id="tabUpload" class="source-tab-btn" role="tab" aria-selected="false" aria-controls="panelUpload" type="button">
+          C) Upload document
+        </button>
+      </div>
+
+      <!-- Tab 1: Synthetic Demos -->
+      <div id="panelDemo" class="source-panel" role="tabpanel" aria-labelledby="tabDemo">
+        <div class="demo-cards-container">
+          <div class="demo-header">
+            <h3>Select a synthetic evaluation agreement</h3>
+            <span class="demo-badge">REALISTIC EVALUATION SAMPLES</span>
+          </div>
+          <div id="demoList" class="demo-cards-grid">
+            <p class="muted">Loading evaluation agreements…</p>
+          </div>
+          <p class="demo-legal-notice">Synthetic demo documents contain realistic sample data only and do not represent real legal agreements.</p>
+        </div>
+      </div>
+
+      <!-- Tab 2: Paste Text -->
+      <div id="panelPaste" class="source-panel" role="tabpanel" aria-labelledby="tabPaste" hidden>
+        <label class="document-input" for="documentText">Document text
+          <textarea id="documentText" rows="9" placeholder="Paste agreement text here (e.g. compensation, termination, non-solicitation, liability)..."></textarea>
+        </label>
+      </div>
+
+      <!-- Tab 3: Upload Document -->
+      <div id="panelUpload" class="source-panel" role="tabpanel" aria-labelledby="tabUpload" hidden>
+        <div id="dropZone" class="upload-zone">
+          <span class="upload-icon" aria-hidden="true">▤</span>
+          <strong>Drag & drop a legal document, or browse</strong>
+          <p class="muted" style="margin:0.35rem 0 0.85rem;font-size:0.8rem;">Supports .txt, .md, .doc text files (transient processing only — raw text is never stored)</p>
+          <input type="file" id="fileInput" accept=".txt,.md,.text" style="display:none;">
+          <button id="browseButton" class="button button-secondary" type="button">Select file from computer</button>
+        </div>
+        <p id="uploadFileName" class="status-message" style="margin-top:0.75rem;" hidden></p>
       </div>
     </div>
-    <label class="document-input">Or paste your own document
-      <textarea id="documentText" rows="7" placeholder="Paste document text here…"></textarea>
-    </label>
+
+    <!-- Actions & Status -->
     <div class="analysis-actions">
-      <button id="analyzeButton" class="button button-primary" type="button">Analyze document <span aria-hidden="true">→</span></button>
-      <p id="analysisStatus" class="status-message" role="status"></p>
+      <button id="analyzeButton" class="button button-primary" type="button">
+        Analyze document <span aria-hidden="true">→</span>
+      </button>
+      <p id="analysisStatus" class="status-message" role="status" aria-live="polite"></p>
     </div>
+
+    <p id="workspaceError" class="form-error" role="alert" style="margin-top:1rem;" hidden></p>
   </section>
+
+  <!-- Analysis Results Section -->
+  <section id="results" class="results" hidden aria-live="polite"></section>
+
+  <!-- History Section -->
   <section id="historySection" class="history-section glass-card" aria-labelledby="history-title" hidden>
     <div class="control-heading">
       <p class="eyebrow">PERSISTED TO CLOUD FIRESTORE</p>
       <h2 id="history-title">Analysis History</h2>
+      <p>Your previous document analyses. Raw document text is omitted to preserve privacy; structured insights and checklists are saved.</p>
     </div>
     <div id="historyList" class="history-list"></div>
   </section>
-  <section id="results" class="results" hidden aria-live="polite"></section>
-  <p id="workspaceError" class="form-error" role="alert" hidden></p>
 </main>
+
 <footer class="site-footer section-shell">
   <div class="footer-brand">
     <a class="brand" href="/" aria-label="LegalLens AI home">
@@ -93,18 +202,46 @@
     </a>
     <p>Understand before you sign.</p>
   </div>
-  <div class="creator-credit">
+
+  <div class="footer-columns" style="display:flex;gap:3rem;flex-wrap:wrap;">
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">PRODUCT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Product navigation">
+        <a href="#analysis-workspace">Workspace</a>
+        <a href="#historySection">History</a>
+        <a href="/account.html">Account</a>
+        <a href="/contact.html">Help</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">LEGAL</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Legal pages">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Use</a>
+        <a href="/disclaimer.html">Legal Disclaimer</a>
+        <a href="/cookies.html">Cookie Policy</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">CONNECT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Creator links">
+        <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+        <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <a href="mailto:somansinghal06@gmail.com">Email ↗</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="creator-credit" style="width:100%;border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
     <span>Built by <strong>Soman Singhal</strong></span>
-    <nav aria-label="Creator links">
-      <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Soman Singhal portfolio">Portfolio</a>
-      <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer" aria-label="Soman Singhal on GitHub">GitHub</a>
-      <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer" aria-label="Soman Singhal on LinkedIn">LinkedIn</a>
-      <a href="mailto:somansinghal06@gmail.com" aria-label="Email Soman Singhal">Email</a>
-    </nav>
+    <p class="footer-meta" style="margin:0;">© 2026 LegalLens AI · Context-aware document intelligence.</p>
   </div>
   <p class="footer-disclaimer">LegalLens AI provides legal information and document assistance. It does not provide legal advice or replace a qualified legal professional.</p>
-  <p class="footer-meta">© 2025 LegalLens AI · Built with care for clearer decisions.</p>
 </footer>
+
 <script type="module" src="/js/dashboard.js"></script>
 </body>
 </html>

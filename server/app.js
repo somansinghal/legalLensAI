@@ -9,6 +9,7 @@ import analysisRouter from './routes/analysis.js';
 import demosRouter from './routes/demos.js';
 import contactRouter from './routes/contact.js';
 import checklistRouter from './routes/checklist.js';
+import userRouter from './routes/user.js';
 import { initFirebase } from './services/firebaseService.js';
 import { config } from './utils/config.js';
 import { requestContext } from './middleware/requestContext.js';
@@ -59,6 +60,7 @@ export function createApp() {
   app.use('/api/protected', protectedRouter);
   app.use('/api', aiLimiter, analysisRouter);
   app.use('/api', checklistRouter);
+  app.use('/api/user', userRouter);
   app.use('/api/demos', demosRouter);
   app.use('/api', contactLimiter, contactRouter);
   

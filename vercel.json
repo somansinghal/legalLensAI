@@ -28,8 +28,28 @@
       "dest": "public/dashboard.html"
     },
     {
+      "src": "/account",
+      "dest": "public/account.html"
+    },
+    {
       "src": "/contact",
       "dest": "public/contact.html"
+    },
+    {
+      "src": "/privacy",
+      "dest": "public/privacy.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "public/terms.html"
+    },
+    {
+      "src": "/disclaimer",
+      "dest": "public/disclaimer.html"
+    },
+    {
+      "src": "/cookies",
+      "dest": "public/cookies.html"
     },
     {
       "src": "/(.*)",

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Privacy Policy — LegalLens AI</title>
+  <meta name="description" content="Learn how LegalLens AI protects your privacy, enforces transient document processing, and secures structured analysis metadata.">
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060a14">
+  <link rel="canonical" href="https://legallensai-india.vercel.app/privacy.html">
+  <link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Privacy Policy — LegalLens AI">
+  <meta property="og:description" content="LegalLens AI privacy policy: transient document processing, strict raw text exclusion, and encrypted Firestore metadata.">
+  <meta property="og:url" content="https://legallensai-india.vercel.app/privacy.html">
+  <meta property="og:image" content="https://legallensai-india.vercel.app/assets/legallens-ai-logo.jpg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/product.css">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+<header class="site-header workspace-header">
+  <a class="brand" href="/" aria-label="LegalLens AI home">
+    <img class="nav-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+    <span><strong>LEGAL<span class="accent-text">LENS</span></strong><small>AI DOCUMENT INTELLIGENCE</small></span>
+  </a>
+
+  <nav class="workspace-nav" aria-label="Primary navigation">
+    <a href="/">Home</a>
+    <a href="/dashboard.html">Workspace</a>
+    <a href="/contact.html">Contact</a>
+  </nav>
+
+  <div class="topbar-actions">
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <button class="theme-toggle-btn" type="button" data-theme-btn aria-label="Select color theme" aria-expanded="false">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span id="currentThemeLabel">Theme</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div class="theme-menu" hidden>
+        <button class="theme-option" type="button" data-theme-value="system">
+          <span class="theme-icon" aria-hidden="true">⚙</span> System
+        </button>
+        <button class="theme-option" type="button" data-theme-value="dark">
+          <span class="theme-icon" aria-hidden="true">☾</span> Dark
+        </button>
+        <button class="theme-option" type="button" data-theme-value="light">
+          <span class="theme-icon" aria-hidden="true">☼</span> Light
+        </button>
+      </div>
+    </div>
+
+    <a href="/login.html" class="button button-primary" style="padding:0.45rem 1rem;font-size:0.78rem;">Sign in ↗</a>
+  </div>
+</header>
+
+<main class="account-shell section-shell">
+  <section class="dashboard-hero">
+    <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> TRANSPARENT ARCHITECTURE</p>
+    <h1>Privacy Policy</h1>
+    <p>Last updated: September 2026. LegalLens AI is engineered from the ground up around data minimization, strict isolation, and zero persistent storage of your raw legal text.</p>
+  </section>
+
+  <div class="account-card" style="max-width:860px;margin-inline:auto;line-height:1.75;font-size:0.92rem;">
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:0;">1. Core Privacy Architecture: The Transient Document Boundary</h2>
+    <p>The single most important principle of LegalLens AI is our <strong>Transient Processing Architecture</strong>:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li><strong>Raw Document Text is Never Persistently Stored:</strong> When you paste or upload an agreement for evaluation, the document text resides strictly in volatile server memory during the active inference request. It is never written to Cloud Firestore, disk logs, or database storage.</li>
+      <li><strong>Isolated Structured Output:</strong> Once analyzed, only normalized insights (such as plain-language summaries, attention levels, extracted deadlines, and interactive checklist items) are stored in your private user subcollection.</li>
+      <li><strong>No Machine Learning Training:</strong> Your documents and analytical outputs are never retained or harvested to train foundational or public AI models.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">2. Information We Collect</h2>
+    <p>We collect only the minimal data necessary to provide a reliable, secure user workspace:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li><strong>Authentication Profile:</strong> When signing in via Google OAuth, we receive your email address, verified status, display name, and avatar picture. For Judge Demo access, an evaluation pseudonym is generated.</li>
+      <li><strong>Structured Workspace Metadata:</strong> Document title (e.g. "Employment Agreement"), document category, context situation (e.g. "Employee"), goal, and validated analysis outputs.</li>
+      <li><strong>User Preferences:</strong> Theme preference (Dark, Light, System), reduced motion settings, and default persona choices.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">3. Third-Party Services & Processing</h2>
+    <p>To deliver high-speed legal intelligence, LegalLens AI interfaces with verified infrastructure partners:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li><strong>Groq Inc. (LLM Inference):</strong> Analysis requests are routed securely over TLS to Groq's high-speed inference engine for one-pass processing under strict enterprise API terms.</li>
+      <li><strong>Google Cloud Platform & Firebase:</strong> Authentication identity and isolated Firestore database subcollections are secured using Google Cloud security infrastructure.</li>
+      <li><strong>Vercel:</strong> Our application edge routes and static web client are hosted on Vercel's global CDN.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">4. Cookies and Local Storage</h2>
+    <p>LegalLens AI uses strictly necessary cookies and local storage tokens:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li><strong>Session Cookie (<code>legallens_session</code>):</strong> An encrypted, HttpOnly, SameSite=Lax cookie configured to maintain your secure authenticated session for 4 hours. It cannot be accessed by client-side JavaScript.</li>
+      <li><strong>Local Storage (<code>legallens_theme</code>):</strong> A single key used exclusively to remember your preferred UI theme and prevent unstyled flashing on page load.</li>
+      <li><strong>No Tracking Cookies:</strong> We do not use third-party advertising, commercial tracking, or behavioral profiling cookies.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">5. Security Safeguards</h2>
+    <p>We employ multi-layered defensive security including:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li>Strict Content Security Policy (CSP) blocking unauthorized external scripts and framing.</li>
+      <li>Per-IP and per-user rate limiting on authentication and AI analysis endpoints.</li>
+      <li>Per-user Firestore collection isolation preventing cross-account access.</li>
+      <li>Cryptographically secure one-time OAuth state validation with automatic expiration.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">6. Contacting the Creator</h2>
+    <p>If you have any questions, concerns, or data requests regarding this Privacy Policy, please reach out directly:</p>
+    <p><strong>Soman Singhal</strong><br>Email: <a href="mailto:somansinghal06@gmail.com" class="text-link">somansinghal06@gmail.com ↗</a><br>Portfolio: <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-link">somansinghal.vercel.app ↗</a></p>
+  </div>
+</main>
+
+<footer class="site-footer section-shell">
+  <div class="footer-brand">
+    <a class="brand" href="/" aria-label="LegalLens AI home">
+      <img class="footer-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+      <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
+    </a>
+    <p>Understand before you sign.</p>
+  </div>
+
+  <div class="footer-columns" style="display:flex;gap:3rem;flex-wrap:wrap;">
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">PRODUCT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Product navigation">
+        <a href="/dashboard.html">Workspace</a>
+        <a href="/dashboard.html#historySection">History</a>
+        <a href="/account.html">Account</a>
+        <a href="/contact.html">Help</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">LEGAL</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Legal pages">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Use</a>
+        <a href="/disclaimer.html">Legal Disclaimer</a>
+        <a href="/cookies.html">Cookie Policy</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">CONNECT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Creator links">
+        <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+        <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <a href="mailto:somansinghal06@gmail.com">Email ↗</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="creator-credit" style="width:100%;border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <span>Built by <strong>Soman Singhal</strong></span>
+    <p class="footer-meta" style="margin:0;">© 2026 LegalLens AI · Context-aware document intelligence.</p>
+  </div>
+  <p class="footer-disclaimer">LegalLens AI provides legal information and document assistance. It does not provide legal advice or replace a qualified legal professional.</p>
+</footer>
+
+<script type="module" src="/js/theme.js"></script>
+<script type="module">
+  import { initThemeSwitcher } from '/js/theme.js';
+  initThemeSwitcher();
+</script>
+</body>
+</html>

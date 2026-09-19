@@ -5,16 +5,22 @@ import { getFirestoreDb } from './firebaseService.js';
  */
 export async function getUserPreferences(userId) {
   const db = getFirestoreDb();
-  if (!db || !userId) return null;
+  if (!db || !userId) return { persona: 'employee', intent: 'understand_before_signing', theme: 'system', reducedMotion: false };
 
   try {
     const prefRef = db.collection('users').doc(userId).collection('preferences').doc('settings');
     const doc = await prefRef.get();
-    if (!doc.exists) return { persona: 'employee', intent: 'understand_before_signing' };
-    return doc.data();
+    if (!doc.exists) return { persona: 'employee', intent: 'understand_before_signing', theme: 'system', reducedMotion: false };
+    return {
+      persona: 'employee',
+      intent: 'understand_before_signing',
+      theme: 'system',
+      reducedMotion: false,
+      ...doc.data()
+    };
   } catch (error) {
     console.warn('[PreferenceService] Error reading preferences:', error.message);
-    return null;
+    return { persona: 'employee', intent: 'understand_before_signing', theme: 'system', reducedMotion: false };
   }
 }
 
@@ -23,20 +29,25 @@ export async function getUserPreferences(userId) {
  */
 export async function setUserPreferences(userId, prefs) {
   const db = getFirestoreDb();
-  if (!db || !userId || !prefs) return null;
+  if (!userId || !prefs) return null;
 
-  try {
-    const prefRef = db.collection('users').doc(userId).collection('preferences').doc('settings');
-    const now = new Date().toISOString();
-    const data = {
-      persona: prefs.persona || 'employee',
-      intent: prefs.intent || 'understand_before_signing',
-      updatedAt: now
-    };
-    await prefRef.set(data, { merge: true });
-    return data;
-  } catch (error) {
-    console.warn('[PreferenceService] Error setting preferences:', error.message);
-    return null;
+  const now = new Date().toISOString();
+  const data = {
+    persona: typeof prefs.persona === 'string' ? prefs.persona : 'employee',
+    intent: typeof prefs.intent === 'string' ? prefs.intent : 'understand_before_signing',
+    theme: ['dark', 'light', 'system'].includes(prefs.theme) ? prefs.theme : 'system',
+    reducedMotion: Boolean(prefs.reducedMotion),
+    updatedAt: now
+  };
+
+  if (db) {
+    try {
+      const prefRef = db.collection('users').doc(userId).collection('preferences').doc('settings');
+      await prefRef.set(data, { merge: true });
+    } catch (error) {
+      console.warn('[PreferenceService] Error setting preferences:', error.message);
+    }
   }
+
+  return data;
 }

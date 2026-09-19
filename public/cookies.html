@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cookie Policy — LegalLens AI</title>
+  <meta name="description" content="Understand how LegalLens AI uses essential session cookies and local theme preferences without tracking or third-party ads.">
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060a14">
+  <link rel="canonical" href="https://legallensai-india.vercel.app/cookies.html">
+  <link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cookie Policy — LegalLens AI">
+  <meta property="og:description" content="Cookie Policy for LegalLens AI: essential HttpOnly session cookies and UI theme storage only.">
+  <meta property="og:url" content="https://legallensai-india.vercel.app/cookies.html">
+  <meta property="og:image" content="https://legallensai-india.vercel.app/assets/legallens-ai-logo.jpg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/product.css">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+<header class="site-header workspace-header">
+  <a class="brand" href="/" aria-label="LegalLens AI home">
+    <img class="nav-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+    <span><strong>LEGAL<span class="accent-text">LENS</span></strong><small>AI DOCUMENT INTELLIGENCE</small></span>
+  </a>
+
+  <nav class="workspace-nav" aria-label="Primary navigation">
+    <a href="/">Home</a>
+    <a href="/dashboard.html">Workspace</a>
+    <a href="/contact.html">Contact</a>
+  </nav>
+
+  <div class="topbar-actions">
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <button class="theme-toggle-btn" type="button" data-theme-btn aria-label="Select color theme" aria-expanded="false">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span id="currentThemeLabel">Theme</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div class="theme-menu" hidden>
+        <button class="theme-option" type="button" data-theme-value="system">
+          <span class="theme-icon" aria-hidden="true">⚙</span> System
+        </button>
+        <button class="theme-option" type="button" data-theme-value="dark">
+          <span class="theme-icon" aria-hidden="true">☾</span> Dark
+        </button>
+        <button class="theme-option" type="button" data-theme-value="light">
+          <span class="theme-icon" aria-hidden="true">☼</span> Light
+        </button>
+      </div>
+    </div>
+
+    <a href="/login.html" class="button button-primary" style="padding:0.45rem 1rem;font-size:0.78rem;">Sign in ↗</a>
+  </div>
+</header>
+
+<main class="account-shell section-shell">
+  <section class="dashboard-hero">
+    <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> MINIMALIST STORAGE</p>
+    <h1>Cookie Policy</h1>
+    <p>Last updated: September 2026. LegalLens AI respects your digital privacy and utilizes only strictly necessary authentication cookies and client theme settings.</p>
+  </section>
+
+  <div class="account-card" style="max-width:860px;margin-inline:auto;line-height:1.75;font-size:0.92rem;">
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:0;">1. What Are Cookies?</h2>
+    <p>Cookies are small text files placed on your computer or mobile device by websites that you visit. They are widely used to make web applications function efficiently, preserve authenticated states, and provide basic interface preferences.</p>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">2. Cookies Used by LegalLens AI</h2>
+    <p>LegalLens AI maintains a strict, transparent cookie inventory. We use only one functional cookie:</p>
+
+    <div style="overflow-x:auto;margin:1.5rem 0;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.84rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--line);">
+            <th style="padding:0.75rem 0.5rem;color:var(--cyan);">Cookie Identifier</th>
+            <th style="padding:0.75rem 0.5rem;color:var(--cyan);">Category</th>
+            <th style="padding:0.75rem 0.5rem;color:var(--cyan);">Lifespan</th>
+            <th style="padding:0.75rem 0.5rem;color:var(--cyan);">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:0.75rem 0.5rem;font-weight:700;color:var(--text);"><code>legallens_session</code></td>
+            <td style="padding:0.75rem 0.5rem;">Strictly Necessary</td>
+            <td style="padding:0.75rem 0.5rem;">4 hours</td>
+            <td style="padding:0.75rem 0.5rem;">Authenticates your session to access the protected workspace. Configured with <code>HttpOnly</code>, <code>SameSite=Lax</code>, and <code>Secure</code> in production to protect against cross-site scripting (XSS).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">3. Browser Local Storage</h2>
+    <p>In addition to our session cookie, LegalLens AI utilizes browser <code>localStorage</code> exclusively for user experience preferences:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li><strong><code>legallens_theme</code>:</strong> Stores your chosen visual theme (<code>dark</code>, <code>light</code>, or <code>system</code>). This prevents jarring flashes of dark or light backgrounds when navigating between pages. No sensitive tokens, credentials, or document excerpts are ever stored in <code>localStorage</code>.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">4. What We DO NOT Use</h2>
+    <p>In adherence to our strict privacy stance:</p>
+    <ul class="plain-list" style="margin:1rem 0 1.5rem;">
+      <li>We do <strong>NOT</strong> use third-party advertising cookies or ad networks.</li>
+      <li>We do <strong>NOT</strong> use behavioral tracking pixels or cross-site tracking beacons.</li>
+      <li>We do <strong>NOT</strong> monetize, sell, or share user analytics with commercial data brokers.</li>
+    </ul>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">5. Managing Cookies in Your Browser</h2>
+    <p>You can manage or disable cookies through your web browser's security settings. However, please note that disabling the <code>legallens_session</code> cookie will prevent you from signing in or utilizing the document analysis workspace.</p>
+
+    <h2 style="font-size:1.4rem;color:var(--text);margin-top:2rem;">6. Inquiries</h2>
+    <p>If you have any questions regarding our Cookie Policy, please contact the creator:</p>
+    <p><strong>Soman Singhal</strong><br>Email: <a href="mailto:somansinghal06@gmail.com" class="text-link">somansinghal06@gmail.com ↗</a><br>Portfolio: <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-link">somansinghal.vercel.app ↗</a></p>
+  </div>
+</main>
+
+<footer class="site-footer section-shell">
+  <div class="footer-brand">
+    <a class="brand" href="/" aria-label="LegalLens AI home">
+      <img class="footer-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+      <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
+    </a>
+    <p>Understand before you sign.</p>
+  </div>
+
+  <div class="footer-columns" style="display:flex;gap:3rem;flex-wrap:wrap;">
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">PRODUCT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Product navigation">
+        <a href="/dashboard.html">Workspace</a>
+        <a href="/dashboard.html#historySection">History</a>
+        <a href="/account.html">Account</a>
+        <a href="/contact.html">Help</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">LEGAL</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Legal pages">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Use</a>
+        <a href="/disclaimer.html">Legal Disclaimer</a>
+        <a href="/cookies.html">Cookie Policy</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">CONNECT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Creator links">
+        <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+        <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <a href="mailto:somansinghal06@gmail.com">Email ↗</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="creator-credit" style="width:100%;border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <span>Built by <strong>Soman Singhal</strong></span>
+    <p class="footer-meta" style="margin:0;">© 2026 LegalLens AI · Context-aware document intelligence.</p>
+  </div>
+  <p class="footer-disclaimer">LegalLens AI provides legal information and document assistance. It does not provide legal advice or replace a qualified legal professional.</p>
+</footer>
+
+<script type="module" src="/js/theme.js"></script>
+<script type="module">
+  import { initThemeSwitcher } from '/js/theme.js';
+  initThemeSwitcher();
+</script>
+</body>
+</html>

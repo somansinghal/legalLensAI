@@ -19,18 +19,40 @@
   <meta name="twitter:title" content="Sign In — LegalLens AI">
   <meta name="twitter:description" content="Sign in to LegalLens AI to analyze legal documents in context and explore plain-language document insights.">
   <meta name="twitter:image" content="https://legallensai-india.vercel.app/assets/legallens-ai-logo.jpg">
+  <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/oauth.css">
+  <link rel="stylesheet" href="/css/theme.css">
 </head>
 <body class="auth-page">
 <main class="auth-shell">
-  <a class="brand auth-brand" href="/" aria-label="LegalLens AI home">
-    <img src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
-    <span class="sr-only">LegalLens AI</span>
-  </a>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <a class="brand" href="/" aria-label="LegalLens AI home">
+      <img class="nav-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+      <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
+    </a>
+    <div class="theme-switcher">
+      <button class="theme-toggle-btn" type="button" data-theme-btn aria-label="Select color theme" aria-expanded="false">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span id="currentThemeLabel">Theme</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div class="theme-menu" hidden>
+        <button class="theme-option" type="button" data-theme-value="system">
+          <span class="theme-icon" aria-hidden="true">⚙</span> System
+        </button>
+        <button class="theme-option" type="button" data-theme-value="dark">
+          <span class="theme-icon" aria-hidden="true">☾</span> Dark
+        </button>
+        <button class="theme-option" type="button" data-theme-value="light">
+          <span class="theme-icon" aria-hidden="true">☼</span> Light
+        </button>
+      </div>
+    </div>
+  </div>
   <section class="auth-card glass-card" aria-labelledby="login-title">
     <p class="eyebrow">SECURE DEMO ACCESS</p>
     <h1 id="login-title">Welcome back.</h1>

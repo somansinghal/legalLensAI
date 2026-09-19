@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Account Settings — LegalLens AI</title>
+  <meta name="description" content="Manage your LegalLens AI account profile, security information, preferences, and privacy settings.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060a14">
+  <link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/product.css">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+<header class="site-header workspace-header">
+  <a class="brand" href="/" aria-label="LegalLens AI home">
+    <img class="nav-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+    <span><strong>LEGAL<span class="accent-text">LENS</span></strong><small>AI DOCUMENT INTELLIGENCE</small></span>
+  </a>
+
+  <nav class="workspace-nav" aria-label="Workspace navigation">
+    <a href="/dashboard.html">Workspace</a>
+    <a href="/dashboard.html#historySection">History</a>
+    <a href="/account.html" class="active">Account</a>
+    <a href="/contact.html">Help</a>
+  </nav>
+
+  <div class="topbar-actions">
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <button class="theme-toggle-btn" type="button" data-theme-btn aria-label="Select color theme" aria-expanded="false">
+        <span class="theme-icon" aria-hidden="true">◐</span>
+        <span id="currentThemeLabel">Theme</span>
+        <span aria-hidden="true" style="font-size:0.65rem;">▼</span>
+      </button>
+      <div class="theme-menu" hidden>
+        <button class="theme-option" type="button" data-theme-value="system">
+          <span class="theme-icon" aria-hidden="true">⚙</span> System
+        </button>
+        <button class="theme-option" type="button" data-theme-value="dark">
+          <span class="theme-icon" aria-hidden="true">☾</span> Dark
+        </button>
+        <button class="theme-option" type="button" data-theme-value="light">
+          <span class="theme-icon" aria-hidden="true">☼</span> Light
+        </button>
+      </div>
+    </div>
+
+    <a href="/dashboard.html" class="button button-secondary" style="padding:0.4rem 0.85rem;font-size:0.78rem;">← Workspace</a>
+  </div>
+</header>
+
+<main class="account-shell section-shell">
+  <section class="dashboard-hero" style="margin-bottom:1.5rem;">
+    <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> USER ACCOUNT & SECURITY</p>
+    <h1>Account Overview</h1>
+    <p>View your profile details, manage interface preferences, review active session security, and explore our strict document privacy architecture.</p>
+  </section>
+
+  <div class="account-grid">
+    <!-- 1. Profile Information -->
+    <section class="account-card" aria-labelledby="profile-title">
+      <h2 id="profile-title"><span aria-hidden="true">👤</span> Profile Details</h2>
+      <div class="profile-field-list">
+        <div class="profile-field">
+          <label>Display Name</label>
+          <span id="profileName">Loading…</span>
+        </div>
+        <div class="profile-field">
+          <label>Email Address</label>
+          <span id="profileEmail">Loading…</span>
+        </div>
+        <div class="profile-field">
+          <label>Account Role</label>
+          <span id="profileRole" class="demo-badge">USER</span>
+        </div>
+        <div class="profile-field">
+          <label>Auth Provider</label>
+          <span id="profileProvider">Google OAuth</span>
+        </div>
+        <div class="profile-field">
+          <label>Member Since</label>
+          <span id="profileCreated">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Session & Security Information -->
+    <section class="account-card" aria-labelledby="security-title">
+      <h2 id="security-title"><span aria-hidden="true">🔒</span> Security & Session</h2>
+      <div class="profile-field-list">
+        <div class="profile-field">
+          <label>Session Status</label>
+          <span style="color:var(--cyan);font-weight:700;">● Active (HttpOnly Secure)</span>
+        </div>
+        <div class="profile-field">
+          <label>Session Storage</label>
+          <span>Encrypted Firestore + Memory</span>
+        </div>
+        <div class="profile-field">
+          <label>Session Expiration</label>
+          <span id="sessionExpires">—</span>
+        </div>
+        <div class="profile-field">
+          <label>Cross-User Isolation</label>
+          <span>Enforced via server middleware</span>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;">
+        <button id="accountLogoutBtn" class="button button-secondary" type="button">Log out of this session</button>
+      </div>
+    </section>
+
+    <!-- 3. Preferences -->
+    <section id="preferences" class="account-card" aria-labelledby="pref-title">
+      <h2 id="pref-title"><span aria-hidden="true">⚙</span> Interface Preferences</h2>
+      <form id="prefForm">
+        <div class="preference-control">
+          <div>
+            <strong style="color:var(--text);display:block;">Color Theme</strong>
+            <small class="muted">Select Dark, Light, or follow your operating system</small>
+          </div>
+          <select id="prefTheme" name="theme">
+            <option value="system">System Default</option>
+            <option value="dark">Dark Theme</option>
+            <option value="light">Light Theme</option>
+          </select>
+        </div>
+
+        <div class="preference-control">
+          <div>
+            <strong style="color:var(--text);display:block;">Reduced Motion</strong>
+            <small class="muted">Minimize transitions and visual animations</small>
+          </div>
+          <label style="cursor:pointer;display:flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" id="prefReducedMotion" name="reducedMotion" style="accent-color:var(--cyan);width:18px;height:18px;">
+            <span style="font-size:0.8rem;color:var(--text);">Enable</span>
+          </label>
+        </div>
+
+        <div class="preference-control">
+          <div>
+            <strong style="color:var(--text);display:block;">Default Situation</strong>
+            <small class="muted">Pre-selects your primary analysis perspective</small>
+          </div>
+          <select id="prefPersona" name="persona">
+            <option value="employee">Employee</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="student">Student</option>
+            <option value="business_owner">Business Owner</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem;">
+          <button class="button button-primary" type="submit">Save Preferences</button>
+          <span id="prefStatus" class="status-message" role="status"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- 4. Privacy & Data Architecture -->
+    <section class="account-card" aria-labelledby="privacy-title">
+      <h2 id="privacy-title"><span aria-hidden="true">🛡</span> Strict Privacy Guarantee</h2>
+      <p style="color:var(--muted);font-size:0.84rem;line-height:1.55;margin-bottom:1rem;">
+        LegalLens AI is architected with a strict privacy boundary:
+      </p>
+      <ul class="plain-list" style="font-size:0.82rem;margin-bottom:1.25rem;">
+        <li><strong>Zero Raw Text Persistence:</strong> Your uploaded or pasted contract text is processed ephemerally in server memory and is <em>never</em> written to Cloud Firestore or persistent storage.</li>
+        <li><strong>Isolated Structured Output:</strong> Only validated AI metadata (clause explanations, attention ratings, and checklists) are stored in your private Firestore subcollection.</li>
+        <li><strong>No Model Training:</strong> Processed documents are never used for machine learning model training or public evaluation.</li>
+      </ul>
+      <a href="/privacy.html" class="text-link">Read our full Privacy Policy <span aria-hidden="true">→</span></a>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer section-shell">
+  <div class="footer-brand">
+    <a class="brand" href="/" aria-label="LegalLens AI home">
+      <img class="footer-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+      <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
+    </a>
+    <p>Understand before you sign.</p>
+  </div>
+
+  <div class="footer-columns" style="display:flex;gap:3rem;flex-wrap:wrap;">
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">PRODUCT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Product navigation">
+        <a href="/dashboard.html">Workspace</a>
+        <a href="/dashboard.html#historySection">History</a>
+        <a href="/account.html">Account</a>
+        <a href="/contact.html">Help</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">LEGAL</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Legal pages">
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Use</a>
+        <a href="/disclaimer.html">Legal Disclaimer</a>
+        <a href="/cookies.html">Cookie Policy</a>
+      </nav>
+    </div>
+
+    <div class="footer-col">
+      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">CONNECT</strong>
+      <nav style="display:grid;gap:0.4rem;" aria-label="Creator links">
+        <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
+        <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        <a href="mailto:somansinghal06@gmail.com">Email ↗</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="creator-credit" style="width:100%;border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <span>Built by <strong>Soman Singhal</strong></span>
+    <p class="footer-meta" style="margin:0;">© 2026 LegalLens AI · Context-aware document intelligence.</p>
+  </div>
+  <p class="footer-disclaimer">LegalLens AI provides legal information and document assistance. It does not provide legal advice or replace a qualified legal professional.</p>
+</footer>
+
+<script type="module" src="/js/account.js"></script>
+</body>
+</html>

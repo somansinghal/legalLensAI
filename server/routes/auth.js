@@ -10,10 +10,31 @@ const isProduction = process.env.NODE_ENV === 'production';
 const cookieOptions = `Path=/; HttpOnly; SameSite=Lax; Max-Age=14400${isProduction ? '; Secure' : ''}`;
 const safeReturnTo = (value) => typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !value.includes('\\') ? value : '/dashboard.html';
 
+export const getGoogleCallbackUrl = () => {
+  const envUrl = process.env.GOOGLE_CALLBACK_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
+  if (isProduction || process.env.VERCEL) {
+    return 'https://legallensai-india.vercel.app/api/auth/google/callback';
+  }
+  return envUrl || 'http://127.0.0.1:3000/api/auth/google/callback';
+};
+
 router.get('/google', async (req, res, next) => {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_CALLBACK_URL) return next(new AppError(503, 'OAUTH_UNAVAILABLE', 'Google sign-in is not configured on this server.'));
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    return next(new AppError(503, 'OAUTH_UNAVAILABLE', 'Google sign-in is not configured on this server.'));
+  }
+  const callbackUrl = getGoogleCallbackUrl();
   const state = await createOAuthState(safeReturnTo(req.query.returnTo));
-  const params = new URLSearchParams({ client_id: process.env.GOOGLE_CLIENT_ID, redirect_uri: process.env.GOOGLE_CALLBACK_URL, response_type: 'code', scope: 'openid email profile', state, prompt: 'select_account' });
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: callbackUrl,
+    response_type: 'code',
+    scope: 'openid email profile',
+    state,
+    prompt: 'select_account'
+  });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
 
@@ -21,12 +42,25 @@ router.get('/google/callback', async (req, res) => {
   const failure = '/login.html?oauth=failed';
   if (req.query.error || !req.query.code || !req.query.state) return res.redirect(failure);
   const state = await consumeOAuthState(req.query.state);
-  if (!state || !process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_CALLBACK_URL) return res.redirect(failure);
+  if (!state || !process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) return res.redirect(failure);
+  const callbackUrl = getGoogleCallbackUrl();
   try {
-    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code: req.query.code, client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET, redirect_uri: process.env.GOOGLE_CALLBACK_URL, grant_type: 'authorization_code' }) });
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: req.query.code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: callbackUrl,
+        grant_type: 'authorization_code'
+      })
+    });
     if (!tokenResponse.ok) return res.redirect(failure);
     const token = await tokenResponse.json();
-    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${token.access_token}` } });
+    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: `Bearer ${token.access_token}` }
+    });
     if (!profileResponse.ok) return res.redirect(failure);
     const profile = await profileResponse.json();
     if (!profile.email || profile.email_verified !== true || !profile.sub) return res.redirect(failure);
@@ -122,8 +156,10 @@ router.get('/session', requireAuth, (req, res) => {
       userId: req.session.userId,
       email: req.session.email,
       role: req.session.role,
-      displayName: req.session.displayName || null,
-      photoURL: req.session.photoURL || null
+      displayName: req.session.displayName || (req.session.role === 'demo' ? 'Judge Demo Evaluator' : null),
+      photoURL: req.session.photoURL || null,
+      provider: req.session.provider || (req.session.role === 'demo' ? 'demo' : 'google'),
+      createdAt: req.session.createdAt || null
     },
     expiresAt: req.session.expiresAt
   });
