@@ -28,10 +28,9 @@
 
 - **Live Production Website**: [https://legallensai-india.vercel.app/](https://legallensai-india.vercel.app/)
 - **GitHub Repository**: [https://github.com/somansinghal/legalLensAI](https://github.com/somansinghal/legalLensAI)
-- **Creator Portfolio**: [https://soman-singhal.vercel.app](https://soman-singhal.vercel.app)
+- **Creator Portfolio**: [https://somansinghal.vercel.app/](https://somansinghal.vercel.app/)
 - **Creator GitHub**: [https://github.com/somansinghal](https://github.com/somansinghal)
-- **Creator LinkedIn**: [https://in.linkedin.com/in/soman-singhal](https://in.linkedin.com/in/soman-singhal)
-- **Creator Instagram**: [https://www.instagram.com/_somansinghal/](https://www.instagram.com/_somansinghal/)
+- **Creator LinkedIn**: [https://www.linkedin.com/in/soman-singhal](https://www.linkedin.com/in/soman-singhal)
 - **Contact Email**: [somansinghal06@gmail.com](mailto:somansinghal06@gmail.com)
 
 ---
@@ -389,10 +388,9 @@ All credentials are **SERVER ONLY** and must never be exposed to the frontend:
 
 **Built with pride by Soman Singhal**
 
-- **Portfolio**: [https://soman-singhal.vercel.app](https://soman-singhal.vercel.app)
+- **Portfolio**: [https://somansinghal.vercel.app/](https://somansinghal.vercel.app/)
 - **GitHub**: [@somansinghal](https://github.com/somansinghal)
-- **LinkedIn**: [Soman Singhal](https://in.linkedin.com/in/soman-singhal)
-- **Instagram**: [@_somansinghal](https://www.instagram.com/_somansinghal/)
+- **LinkedIn**: [Soman Singhal](https://www.linkedin.com/in/soman-singhal)
 - **Email**: [somansinghal06@gmail.com](mailto:somansinghal06@gmail.com)
 
 ---
