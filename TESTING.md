@@ -44,7 +44,7 @@ tests/
 ```bash
 npm test
 ```
-*Executes all 23 unit & integration tests with zero external configuration (including Firestore session persistence).*
+*Executes all 25 unit & integration tests with zero external configuration (including one-click Judge Demo authentication and Firestore session persistence).*
 
 ### Playwright End-to-End Tests:
 ```bash

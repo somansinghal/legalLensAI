@@ -48,3 +48,37 @@ test('protected workspace rejects requests without a session', async () => {
     assert.equal(response.body.error.code, 'UNAUTHORIZED');
   } finally { server.close(); }
 });
+
+test('POST /api/auth/demo authenticates judge automatically and sets HttpOnly cookie without exposing password', async () => {
+  const server = createApp().listen(0);
+  try {
+    const response = await request(server, '/api/auth/demo', { method: 'POST' });
+    assert.equal(response.status, 200);
+    assert.equal(response.body.authenticated, true);
+    assert.equal(response.body.user.role, 'demo');
+    assert.equal(response.body.user.email, 'judge@example.com');
+    assert.equal(response.body.password, undefined);
+    assert.match(response.headers['set-cookie'][0], /HttpOnly/);
+    assert.match(response.headers['set-cookie'][0], /legallens_session/);
+  } finally { server.close(); }
+});
+
+test('POST /api/auth/demo returns 503 safely if demo credentials are not configured', async () => {
+  const prevEmail = process.env.DEMO_EMAIL;
+  const prevPass = process.env.DEMO_PASSWORD;
+  delete process.env.DEMO_EMAIL;
+  delete process.env.DEMO_PASSWORD;
+
+  const server = createApp().listen(0);
+  try {
+    const response = await request(server, '/api/auth/demo', { method: 'POST' });
+    assert.equal(response.status, 503);
+    assert.equal(response.body.error.code, 'DEMO_UNAVAILABLE');
+    assert.match(response.body.error.message, /currently unavailable/i);
+  } finally {
+    process.env.DEMO_EMAIL = prevEmail;
+    process.env.DEMO_PASSWORD = prevPass;
+    server.close();
+  }
+});
+

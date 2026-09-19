@@ -80,6 +80,35 @@ Authenticates evaluator using configured demo credentials.
   }
   ```
 
+### `POST /api/auth/demo`
+Authenticates evaluator with a single click using server-side configured demo credentials. Does not require or return passwords.
+
+- **Auth**: Public
+- **Rate Limit**: 20 req / 15 min
+- **Request Body**: None (empty)
+- **Response `200 OK`**: Sets `HttpOnly; SameSite=Lax; Secure` session cookie (`legallens_session`).
+  ```json
+  {
+    "authenticated": true,
+    "user": {
+      "userId": "demo:7839bf021a8d94c1",
+      "email": "judge@example.com",
+      "role": "demo",
+      "displayName": "Judge Demo Evaluator"
+    }
+  }
+  ```
+- **Response `503 Service Unavailable`** (if unconfigured):
+  ```json
+  {
+    "requestId": "...",
+    "error": {
+      "code": "DEMO_UNAVAILABLE",
+      "message": "Judge demo access is currently unavailable. Please use the provided credentials."
+    }
+  }
+  ```
+
 ### `POST /api/auth/logout`
 Destroys session and clears cookie.
 

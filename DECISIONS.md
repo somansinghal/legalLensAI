@@ -61,3 +61,32 @@
 - **Consequences**:
   - Full serverless compatibility without changing Express router code or weakening security.
   - Sessions persist across distinct Vercel function instances without storing credentials in `localStorage` or `sessionStorage`.
+
+---
+
+## ADR-005: Two-Tier Firebase Configuration & Decoupled Client/Server Boundaries
+
+- **Status**: Accepted
+- **Context**: Firebase provides client-facing SDK configuration (`apiKey`, `appId`, `projectId`, etc.) as well as server-side administrative service account credentials (`FIREBASE_PRIVATE_KEY`, `FIREBASE_CLIENT_EMAIL`). Confusing these two layers risks critical security leakage.
+- **Decision**:
+  1. Maintain two strictly separated configuration scopes:
+     - **Layer A (Public Client)**: `public/js/firebase-config.js` exposes public Web App parameters for `legallenz-ai`. Safe for browser consumption.
+     - **Layer B (Server Admin Private)**: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY` reside exclusively in server-side environment variables.
+  2. Maintain `allow read, write: if false;` on Cloud Firestore so all data access remains server-mediated.
+- **Consequences**:
+  - Administrative private keys are 100% shielded from browser bundles and network responses.
+  - Client web app configuration is cleanly documented and ready if client features are expanded.
+
+---
+
+## ADR-006: One-Click Evaluator Authentication Endpoint (POST /api/auth/demo)
+
+- **Status**: Accepted
+- **Context**: Hackathon judges require an effortless, one-click experience to evaluate the full application without manually copying or typing credentials, while preserving strict security that never exposes `DEMO_PASSWORD` to browser JavaScript.
+- **Decision**:
+  1. Introduce `POST /api/auth/demo` which reads `DEMO_EMAIL` and `DEMO_PASSWORD` strictly server-side.
+  2. Validate credentials via `verifyDemoCredentials`, create the standard session in Firestore, issue an `HttpOnly` cookie, and return safe identity metadata without passwords.
+  3. Wire the login page "Judge Demo — use configured credentials" button directly to this endpoint with an accessible loading state ("Starting judge demo...") and duplicate request suppression.
+- **Consequences**:
+  - Seamless zero-friction evaluator onboarding.
+  - Strict security guarantee: `DEMO_PASSWORD` is never exposed to frontend code, DOM, or client API payloads.

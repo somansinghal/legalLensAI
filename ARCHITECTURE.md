@@ -179,6 +179,43 @@ users/{userId}
 
 ---
 
+## 5.1 Two-Tier Firebase Configuration Architecture
+
+To enforce strict security and zero leakage of administrative keys, Firebase is partitioned into two isolated configuration layers:
+
+### Layer A: Firebase Web App Client Configuration (`public/js/firebase-config.js`)
+Configured for client-facing capabilities (project `legallenz-ai`):
+- `apiKey`: `AIzaSyDP0h5OEmXzv3J_ajF24gZ_p4hIrSf72U4`
+- `authDomain`: `legallenz-ai.firebaseapp.com`
+- `projectId`: `legallenz-ai`
+- `storageBucket`: `legallenz-ai.firebasestorage.app`
+- `messagingSenderId`: `10907545077`
+- `appId`: `1:10907545077:web:5bc5044789a39859b444bc`
+- `measurementId`: `G-ZZW2QYZ0NK`
+
+*Note: The frontend does not initiate direct client Firestore queries; security rules remain `allow read, write: if false;` for direct client access.*
+
+### Layer B: Firebase Admin SDK Server Credentials (Strictly Server-Only)
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+
+These credentials reside exclusively in server environment variables (Vercel Project Settings) and are never exposed in client JavaScript, HTML, localStorage, or API responses.
+
+---
+
+## 5.2 One-Click Judge Demo Architecture (`POST /api/auth/demo`)
+
+Evaluators can test the complete system with a single click:
+1. Client sends `POST /api/auth/demo` with empty body (no password sent or received).
+2. Server loads `DEMO_EMAIL` and `DEMO_PASSWORD` from private server environment.
+3. Server executes `verifyDemoCredentials` in constant time (`crypto.timingSafeEqual`).
+4. Server generates an authenticated session token, persists it into Firestore `sessions/{tokenHash}` with an HMAC-SHA256 salt, and emits an `HttpOnly` `SameSite=Lax` `Secure` session cookie.
+5. Client receives `{ authenticated: true, user: ... }` and redirects to `/dashboard.html`.
+6. Rate limiting is enforced under `authLimiter` (max 20 requests per 15 minutes).
+
+---
+
 ## 6. Document Versioning Strategy
 
 All persisted analysis and checklist documents contain an explicit `schemaVersion` attribute:

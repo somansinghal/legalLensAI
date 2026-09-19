@@ -76,6 +76,39 @@ router.post('/login', async (req, res, next) => {
   return res.json({ authenticated: true, user: { userId, email, role: 'demo', displayName: userData.displayName } });
 });
 
+router.post('/demo', async (req, res, next) => {
+  const demoEmail = typeof process.env.DEMO_EMAIL === 'string' ? process.env.DEMO_EMAIL.trim().toLowerCase() : '';
+  const demoPassword = typeof process.env.DEMO_PASSWORD === 'string' ? process.env.DEMO_PASSWORD : '';
+
+  if (!demoEmail || !demoPassword || !verifyDemoCredentials(demoEmail, demoPassword)) {
+    return next(new AppError(503, 'DEMO_UNAVAILABLE', 'Judge demo access is currently unavailable. Please use the provided credentials.'));
+  }
+
+  const userId = `demo:${crypto.createHash('sha256').update(demoEmail).digest('hex').slice(0, 16)}`;
+  const userData = {
+    userId,
+    provider: 'demo',
+    providerUserId: null,
+    email: demoEmail,
+    displayName: 'Judge Demo Evaluator',
+    photoURL: null,
+    role: 'demo'
+  };
+
+  await upsertUserProfile(userData).catch(() => null);
+  const token = await createSession(userData);
+  res.setHeader('Set-Cookie', `${sessionCookieName}=${encodeURIComponent(token)}; ${cookieOptions}`);
+  return res.json({
+    authenticated: true,
+    user: {
+      userId,
+      email: demoEmail,
+      role: 'demo',
+      displayName: userData.displayName
+    }
+  });
+});
+
 router.post('/logout', async (req, res) => {
   await destroySession(getSessionToken(req));
   res.setHeader('Set-Cookie', `${sessionCookieName}=; ${cookieOptions}; Max-Age=0`);

@@ -14,8 +14,12 @@ LegalLens AI processes sensitive contracts and legal agreements. Security is int
 
 ## 2. Credential & Secret Management
 
-- **No Secrets in Frontend**: `GROQ_API_KEY`, `FIREBASE_PRIVATE_KEY`, `GOOGLE_CLIENT_SECRET`, and session secrets exist solely within the server environment.
-- **Service Account Protection**: Firebase Admin credentials are fed through environment variables (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) or Google Cloud Application Default Credentials (ADC). No physical service account JSON files are committed to source control.
+- **Dual-Layer Firebase Separation**:
+  - **Layer A (Public Client Safe)**: `public/js/firebase-config.js` exposes standard Web App configuration (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`, `measurementId`) for project `legallenz-ai`. These parameters are public and contain zero administrative privileges.
+  - **Layer B (Server Admin Private)**: `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY` exist exclusively within server-side environment variables. They are never bundled into client JavaScript, injected into HTML, stored in storage, or returned in API responses.
+- **No Server Secrets in Frontend**: `GROQ_API_KEY`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_CLIENT_EMAIL`, `GOOGLE_CLIENT_SECRET`, `SMTP_PASSWORD`, `DEMO_PASSWORD`, and `SESSION_SECRET` exist solely within the server environment.
+- **One-Click Judge Demo Security**: The `POST /api/auth/demo` endpoint reads `DEMO_EMAIL` and `DEMO_PASSWORD` strictly server-side. Evaluators are authenticated and issued a secure `HttpOnly` cookie without exposing `DEMO_PASSWORD` to browser JavaScript or network payloads.
+- **Service Account Protection**: Firebase Admin credentials are fed through environment variables or Google Cloud Application Default Credentials (ADC). No physical service account JSON files are committed to source control.
 - **Repository Cleanliness**: Verified `.gitignore` blocks `.env`, credentials, temporary logs, and sensitive artifacts.
 
 ---

@@ -13,7 +13,8 @@
 - [x] Lawyer-preparation questionnaire generator
 - [x] Interactive Action Checklist with state tracking
 - [x] Server-side Google OAuth 2.0 with state verification
-- [x] Zero-friction Judge Demo authentication
+- [x] One-click Judge Demo authentication (`POST /api/auth/demo`) with server-only password protection
+- [x] Two-tier Firebase configuration separation (public Web App config vs. server-side Admin SDK)
 - [x] Firebase Admin SDK server-side persistence
 - [x] Cloud Firestore user profile management (`users/{userId}`)
 - [x] Cloud Firestore analysis history persistence (`users/{userId}/analysisHistory/{analysisId}`)

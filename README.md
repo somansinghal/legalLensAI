@@ -123,17 +123,34 @@ User Input (Persona + Intent + Document)
 
 ---
 
-## 🔥 Firebase & Firestore Integration
+## 🔥 Firebase Architecture & Dual Configuration Layers
 
-LegalLens AI integrates **Firebase Admin SDK** as a trusted, server-side persistence layer:
+LegalLens AI implements a strict, security-first two-tier Firebase architecture:
 
-- **Server-Side Only**: Firebase private keys and Admin credentials remain strictly within the backend environment. No client-side Firebase SDKs or API keys are exposed.
-- **Document Privacy Guarantee**: Raw user document text is **never** written to Firestore. Only metadata (document name, type, persona, intent), timestamps, structured clause explanations, and checklist items are persisted.
+### 1. Firebase Web App Configuration (Client-Side Safe)
+The public web client parameters for the Google Cloud project (`legallenz-ai`) are centralized in [`public/js/firebase-config.js`](public/js/firebase-config.js). These parameters are safe for browser consumption and contain **zero server secrets**:
+- `projectId`: `legallenz-ai`
+- `appId`: `1:10907545077:web:5bc5044789a39859b444bc`
+- `storageBucket`: `legallenz-ai.firebasestorage.app`
+- `apiKey`: `AIzaSyDP0h5OEmXzv3J_ajF24gZ_p4hIrSf72U4`
+- `authDomain`: `legallenz-ai.firebaseapp.com`
+- `messagingSenderId`: `10907545077`
+- `measurementId`: `G-ZZW2QYZ0NK`
+
+### 2. Firebase Admin SDK Configuration (Server-Side Only Secrets)
+Cloud Firestore operations execute exclusively within the server-side Node.js/Vercel serverless layer using **Firebase Admin SDK**. Private service account keys are NEVER exposed to browser JavaScript, HTML, CSS, client bundles, or frontend API responses:
+- `FIREBASE_PROJECT_ID`: Google Cloud / Firebase Project ID
+- `FIREBASE_CLIENT_EMAIL`: Service account email
+- `FIREBASE_PRIVATE_KEY`: Cryptographic private RSA key (escaped newlines handled)
+
+### Architectural Privacy & Security Guarantees:
+- **Server-Mediated Only**: Direct client access to Firestore is denied (`allow read, write: if false;`). All data reads and writes flow through authenticated Express endpoints with rate limiting and session validation.
+- **Document Privacy Guarantee**: Raw user legal document text is **never** written to Firestore or Cloud Storage. Text processing is transient (Browser → Express → Groq → Structured Output). Only structured clause analysis, detected obligations, critical dates, and checklist items are persisted.
 - **Stable Identity Mapping**:
   - Google OAuth users: `google:<providerUserId>`
   - Demo evaluators: `demo:<sha256(email)>`
-- **Schema Versioning**: All persisted analysis documents include `schemaVersion: 1` to ensure zero-downtime forward migrations.
-- **Graceful Offline Degradation**: If Firebase credentials are missing or the database is temporarily unreachable, analysis continues to function smoothly in transient memory mode without crashing.
+- **Schema Versioning**: All persisted analysis documents enforce `schemaVersion: 1` to ensure zero-downtime forward migrations.
+- **Graceful Offline Degradation**: If Firebase credentials are unset or the database is temporarily unreachable, the application smoothly degrades to in-memory caching without throwing 500 errors.
 
 ### Firestore Collections:
 ```
@@ -148,6 +165,10 @@ users/{userId}
   │     └── items: [{ index, task, completed }]
   └── preferences/settings
         └── defaultPersona, defaultIntent
+sessions/{tokenHash}
+  └── session record (userId, email, role, expiresAt, createdAt)
+oauthStates/{stateHash}
+  └── state record (state, returnTo, expiresAt)
 ```
 
 ---
@@ -320,13 +341,23 @@ To enable Google sign-in in production:
 
 For hackathon judges and evaluators reviewing LegalLens AI:
 
-- **Demo Email**: `judge@example.com`
-- **Demo Password**: Provided privately to judges / configured in the deployment environment.
-- **Workflow**:
-  1. Visit [https://legallensai-india.vercel.app/login.html](https://legallensai-india.vercel.app/login.html).
-  2. Enter the configured demo credentials (or click **Judge Demo** to fill the email).
-  3. Explore the workspace with built-in synthetic documents (Freelance NDA, Employment Agreement, Commercial Lease, Terms of Service).
-  4. Test the Attention Radar, Clause Explorer, detected obligations, critical dates, lawyer questions, and persistent checklist items.
+- **One-Click Instant Access**: Visit [https://legallensai-india.vercel.app/login.html](https://legallensai-india.vercel.app/login.html) and click **"Judge Demo — use configured credentials"**.
+  - Initiates `POST /api/auth/demo`
+  - Validates `DEMO_EMAIL` & `DEMO_PASSWORD` strictly on the server (zero secrets in frontend JS or network responses)
+  - Creates the standard secure HttpOnly cookie session (`legallens_session`)
+  - Redirects automatically into the genuine `/dashboard.html` workspace
+- **Manual Credentials Alternative**:
+  - Email: `judge@example.com`
+  - Password: Provided privately to judges / configured in server environment variables.
+- **Judge Evaluation Journey**:
+  1. Instant entry into `/dashboard.html` via one-click Judge Demo.
+  2. Select Persona (Employee, Freelancer, Small Business Owner, Student) and Intent.
+  3. Click any built-in synthetic contract (Freelance NDA, Employment Agreement, Commercial Lease, Terms of Service) or paste custom text.
+  4. Run AI analysis (Groq `llama-3.3-70b-versatile` with prompt-injection defense).
+  5. Inspect Plain-Language Summary, Attention Radar, Important Clauses, Clause Explorer, Detected Obligations, Critical Dates, and Lawyer Questions.
+  6. Interact with the Action Checklist (status persists to Cloud Firestore).
+  7. View and restore from Analysis History.
+  8. Click Logout to terminate the secure session.
 
 ---
 
