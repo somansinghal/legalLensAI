@@ -44,7 +44,7 @@ tests/
 ```bash
 npm test
 ```
-*Executes all 22 test suites with zero external configuration.*
+*Executes all 23 unit & integration tests with zero external configuration (including Firestore session persistence).*
 
 ### Playwright End-to-End Tests:
 ```bash
