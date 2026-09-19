@@ -1,0 +1,27 @@
+{
+  "name": "legal-lens-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Secure scaffolding for LegalLens AI, a context-aware legal document assistant.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report artifacts/playwright-report"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "nodemailer": "^10.0.10"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

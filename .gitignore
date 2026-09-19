@@ -1,0 +1,16 @@
+node_modules/
+.npm/
+.env
+.env.*
+!.env.example
+logs/
+tmp/
+temporary/
+coverage/
+artifacts/
+playwright-report/
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
