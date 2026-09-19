@@ -1,202 +1,192 @@
-# Architecture
+# LegalLens AI — Architecture
 
-## 1. Scope and principles
+## 1. Scope and Design Principles
 
-LegalLens AI is a transient, server-mediated document-understanding product. The architecture favors explainability, privacy by default, few dependencies, clear boundaries, graceful failure, and a repository below 10 MB. It is not a legal-research or legal-advice system.
+LegalLens AI is a context-aware legal document intelligence platform. The architecture favors explainability, strict privacy by default, minimal external dependencies, clear boundaries, graceful failure, and a repository footprint strictly below 10 MB.
 
-## 2. Logical layers
+### Core Architectural Principles:
+1. **Explainable AI Over Chatbots**: Replaces open-ended chat hallucination with deterministic, schema-validated document analysis.
+2. **Privacy by Default**: Raw user-supplied legal documents are analyzed transiently in memory and **never** persisted to Firestore.
+3. **Defense-in-Depth AI Pipeline**: Encloses untrusted document text in XML delimiters, defends against prompt injection, and strictly validates all LLM output against schemas before rendering.
+4. **Decoupled Server-Side Persistence**: Firebase Admin SDK is deployed strictly server-side. Direct client SDK access to Firestore is denied.
+5. **Schema Versioning**: All persisted analysis and profile records include `schemaVersion: 1` to ensure seamless schema evolution.
+6. **Graceful Offline Degradation**: The core application functions seamlessly even when external services (Google OAuth, Firebase, SMTP) are unconfigured or offline.
 
-1. **Presentation** — semantic screens, context form, upload/paste, dashboard, clause detail, comparison, status and disclosure components.
-2. **Application** — routing, request orchestration, lifecycle, response shaping, rate limits, errors.
-3. **Validation** — allowlists, size limits, schema validation, normalization, request IDs.
-4. **Document processing** — safe text extraction from supported formats, normalization, section references, chunking.
-5. **Context/intent** — allowlisted persona and goal mapped to priorities and output emphasis.
-6. **AI orchestration** — task-specific prompts, model call, retry/timeout budget, structured response parsing.
-7. **Security** — secret management, security headers, XSS-safe rendering, abuse controls, logging redaction.
+---
 
-```mermaid
-flowchart TB
- U[User-controlled context and document] --> B[Browser validation]
- B --> R[Express route]
- R --> M[Security middleware]
- M --> I[Input/schema validation]
- I --> T[Text extraction and normalization]
- T --> X[Context + intent priority profile]
- X --> A[Analysis/comparison orchestrator]
- A --> P[Prompt builder: fixed instructions + delimited data]
- P --> Q[Groq server-side client]
- Q --> S[Structured response parser/schema validator]
- S --> V[Safe response view model]
- V --> H[HTML text-only renderer]
-```
-
-## 3. Component architecture
-
-Planned modules (implementation names may be adjusted during Phase 1):
-
-```text
-server/
-  server.js                 process bootstrap and middleware
-  routes/analysisRoutes.js  HTTP contracts only
-  routes/comparisonRoutes.js
-  routes/healthRoutes.js
-  controllers/              request/response coordination
-  services/
-    documentService.js      extraction, normalization, references, limits
-    contextService.js       allowlists and priority profiles
-    analysisService.js      single-document use case
-    comparisonService.js    two-document normalization and diff use case
-    clauseService.js        selected-clause use case
-    checklistService.js     optional deterministic post-processing
-  ai/
-    groqService.js          provider client, timeout, retry budget
-    promptService.js        task prompts and delimiters
-    schemas.js              response schemas
-  validators/               request and model-output validation
-  middleware/               rate limit, errors, security, request IDs
-  utils/                    logger, redaction, constants
-```
-
-The frontend is split by responsibility, not framework: `public/js/api.js`, `state.js`, `forms.js`, `renderers.js`, `accessibility.js`, and `app.js`.
-
-## 4. Request lifecycle
-
-1. Browser validates required persona, intent, and content.
-2. Backend assigns a request ID and checks method, content type, size, rate limit, and origin policy where applicable.
-3. Validator accepts only enumerated persona/intent values and supported input forms.
-4. Document service extracts plain text, rejects empty/oversized content, normalizes whitespace, and assigns section/character references.
-5. Context service maps persona and intent to transparent priorities; it never invents facts.
-6. Orchestrator selects one task prompt and sends delimited document data to Groq.
-7. Groq response is parsed as JSON, validated against the schema, bounded, and normalized. Invalid output is a controlled error, not rendered.
-8. Response contains source references and uncertainty language where relevant.
-9. Frontend renders values through `textContent`/DOM APIs, never raw AI HTML.
-10. Request-specific content is discarded after the response unless a future reviewed storage feature is enabled.
-
-## 5. Data-flow diagrams
-
-### Normal analysis
-
-```mermaid
-sequenceDiagram
- participant U as User
- participant F as Browser
- participant S as Backend
- participant G as Groq
- U->>F: Select persona, intent, document
- F->>S: POST /api/analysis
- S->>S: Validate, extract, normalize, classify context
- S->>G: Delimited content + fixed task + JSON schema
- G-->>S: Candidate structured JSON
- S->>S: Parse, validate, bound, redact logs
- S-->>F: Safe AnalysisResponse
- F-->>U: Summary, radar, clauses, dates, actions
-```
-
-### Comparison
-
-```mermaid
-flowchart LR
- A[Document A] --> N1[Normalize and section]
- B[Document B] --> N2[Normalize and section]
- N1 --> D[Deterministic diff]
- N2 --> D
- D --> AI[Contextual explanation of material changes]
- AI --> O[Validated comparison response]
-```
-
-### Security boundaries
-
-```mermaid
-flowchart LR
- subgraph Browser[Untrusted browser boundary]
-  U[User input]
-  UI[Renderer]
- end
- subgraph Server[Trusted application boundary]
-  MW[Limits/security middleware]
-  V[Validators]
-  S[Services]
-  K[Secret environment]
- end
- subgraph Provider[External processor]
-  G[Groq]
- end
- U --> UI --> MW --> V --> S
- K --> S
- S --> G
- G --> V
- V --> UI
-```
-
-### AI lifecycle and error flow
+## 2. System Architecture Diagram
 
 ```mermaid
 flowchart TD
- Q[Request] --> V{Valid?}
- V -- no --> E1[400/413 message]
- V -- yes --> X[Extract]
- X --> X1{Content usable?}
- X1 -- no --> E2[422 message]
- X1 -- yes --> C[Build one task prompt]
- C --> G{Groq response}
- G -- timeout/failure --> E3[503/504 retry-safe message]
- G -- malformed --> E4[502 controlled model error]
- G -- valid --> R[Schema validation]
- R --> O[Safe response]
- E1 --> L[Redacted structured log]
- E2 --> L
- E3 --> L
- E4 --> L
+    subgraph Client Layer [Client Layer (Browser)]
+        UI[Vanilla HTML5 / CSS3 / ES Modules]
+        State[Local UI State & DOM Controller]
+    end
+
+    subgraph Transport [Transport Layer]
+        HTTP[HTTPS & HttpOnly Session Cookie]
+    end
+
+    subgraph Server Layer [Express API Server]
+        Middleware[Helmet, Rate Limiter, Context]
+        Router[API Routers: Auth, Analysis, Checklist, Contact, Health]
+        AuthSvc[Auth & Session Manager]
+    end
+
+    subgraph Service Layer [Application Services]
+        ContextSvc[Context & Persona Engine]
+        GroqSvc[Prompt Builder & Groq AI Client]
+        Validator[JSON Parser & Schema Normalizer]
+        FirebaseSvc[Firebase Admin SDK Singleton]
+        UserSvc[User Profile Service]
+        HistorySvc[Analysis History Service]
+        ChecklistSvc[Checklist Sync Service]
+    end
+
+    subgraph External Infrastructure [Cloud Infrastructure]
+        GroqCloud[Groq Cloud / Llama 3.3 70B]
+        FirestoreDB[(Cloud Firestore)]
+    end
+
+    UI -->|User Context & Document| HTTP
+    HTTP --> Middleware
+    Middleware --> Router
+    Router --> AuthSvc
+    Router --> GroqSvc
+    GroqSvc --> ContextSvc
+    GroqSvc -->|Delimited Prompt| GroqCloud
+    GroqCloud -->|Raw JSON Completion| Validator
+    Validator -->|Validated Structured Result| Router
+    Router -->|Optional Persistence| HistorySvc
+    HistorySvc --> FirebaseSvc
+    UserSvc --> FirebaseSvc
+    ChecklistSvc --> FirebaseSvc
+    FirebaseSvc --> FirestoreDB
+    Router -->|Safe HTML View Model| UI
 ```
 
-## 6. Data model
+---
 
-No database is required initially. Runtime DTOs are the contract:
+## 3. Component Breakdown
+
+```text
+server/
+  server.js                 Entry point & HTTP server bootstrap
+  app.js                    Express application factory, security middleware, and router mounts
+  middleware/
+    auth.js                 Session cookie verification and route guard (requireAuth)
+    errorHandler.js         Safe centralized error handling and payload limiters
+    rateLimit.js            Tiered in-memory rate limiting per endpoint
+    requestContext.js       Cryptographic requestId injection and request logging
+  routes/
+    auth.js                 Google OAuth flow and demo authentication
+    analysis.js             Document analysis and analysis history endpoints
+    checklist.js            Checklist retrieval and task completion sync
+    contact.js              Product contact form and optional SMTP delivery
+    demos.js                Synthetic demo agreement repository
+    health.js               Public liveness and health status
+    protected.js            Protected workspace session verification
+    services/
+    analysisService.js      AI analysis orchestrator and timeout manager
+    authService.js          Session & OAuth state manager (Firestore-backed with in-memory cache)
+    checklistService.js     Action checklist state persistence and toggles
+    contactService.js       Contact input validation and optional SMTP delivery
+    contextService.js       Persona and intent validation rules
+    demoService.js          Curated demo contracts repository
+    documentService.js      Text sanitization, length boundaries, and metadata extraction
+    firebaseService.js      Firebase Admin SDK singleton & credential resolver
+    historyService.js       Analysis history persistence and scoped query builder
+    preferenceService.js    User UI preferences persistence
+    userService.js          User profile upsert and identity mapping
+api/
+  index.js                  Vercel Serverless Function entry point exporting Express app
+vercel.json                 Vercel routing, clean URLs, and edge security headers
+  utils/
+    config.js               Server environment configuration parser
+    errors.js               AppError class with standardized error shapes
+```
+
+---
+
+## 4. Cloud Firestore Data Model
+
+The Firestore persistence model is designed for strict user isolation, minimal storage overhead, and zero raw document retention.
+
+### Collection Hierarchy:
+
+```
+users/{userId}
+  ├── provider: string ("google" | "demo")
+  ├── providerUserId: string | null
+  ├── email: string
+  ├── displayName: string | null
+  ├── photoURL: string | null
+  ├── createdAt: ISO timestamp
+  ├── updatedAt: ISO timestamp
+  ├── lastLoginAt: ISO timestamp
+  │
+  ├── analysisHistory/{analysisId}
+  │     ├── analysisId: string (UUIDv4)
+  │     ├── userId: string
+  │     ├── documentName: string
+  │     ├── documentType: string
+  │     ├── persona: string
+  │     ├── intent: string
+  │     ├── summary: Array<{ text: string }>
+  │     ├── attentionItems: Array<{ level: string, title: string, explanation: string, suggestedAction: string }>
+  │     ├── importantClauses: Array<{ title: string, explanation: string, attention: string, sourceText: string }>
+  │     ├── obligations: Array<{ party: string, action: string, deadline?: string }>
+  │     ├── importantDates: Array<{ value: string, label: string, event: string, explanation: string }>
+  │     ├── lawyerQuestions: Array<string>
+  │     ├── checklist: Array<{ task: string, completed: boolean }>
+  │     ├── schemaVersion: number (1)
+  │     ├── createdAt: ISO timestamp
+  │     └── updatedAt: ISO timestamp
+  │
+  ├── checklists/{analysisId}
+  │     ├── analysisId: string
+  │     ├── userId: string
+  │     ├── documentName: string
+  │     ├── items: Array<{ index: number, task: string, completed: boolean }>
+  │     ├── createdAt: ISO timestamp
+  │     └── updatedAt: ISO timestamp
+  │
+  └── preferences/settings
+        ├── persona: string
+        ├── intent: string
+        └── updatedAt: ISO timestamp
+```
+
+---
+
+## 5. Data Privacy & Storage Boundary
+
+```
++-------------------------------------------------------------+
+|                      DATA BOUNDARY                          |
++-------------------------------------------------------------+
+| TRANSIENT MEMORY ONLY           | PERSISTED TO CLOUD FIRESTORE|
++---------------------------------+---------------------------+
+| - User document text            | - Document Name           |
+| - Pasted contract excerpts      | - Persona & Intent        |
+| - Raw Groq AI prompt            | - Plain-language summary  |
+| - Groq completion tokens        | - Categorized clauses     |
+| - Google OAuth access tokens    | - Obligations & deadlines |
+| - Google OAuth refresh tokens   | - Lawyer questions        |
+| - Temporary session tokens      | - Checklist task status   |
++-------------------------------------------------------------+
+```
+
+---
+
+## 6. Document Versioning Strategy
+
+All persisted analysis and checklist documents contain an explicit `schemaVersion` attribute:
 
 ```json
 {
-  "requestId": "opaque-id",
-  "context": {"persona": "employee", "intent": "understand_before_signing"},
-  "document": {"documentType": "employment agreement", "language": "en", "sourceLabel": "Document A"},
-  "summary": [{"text": "...", "sourceRefs": ["section-3"]}],
-  "parties": [{"name": "...", "role": "employee", "sourceRefs": ["section-1"]}],
-  "clauses": [{"id": "clause-1", "title": "Termination", "category": "termination", "sourceText": "...", "explanation": "...", "attention": "review_carefully", "uncertainty": "..."}],
-  "obligations": [{"party": "employee", "action": "...", "condition": "...", "deadline": "...", "sourceRefs": ["section-4"]}],
-  "dates": [{"label": "Notice period", "value": "30 days", "condition": "...", "sourceRefs": ["section-5"]}],
-  "attentionItems": [{"level": "high_attention", "title": "...", "whyItMayMatter": "...", "suggestedAction": "...", "sourceRefs": ["section-5"]}],
-  "lawyerQuestions": ["..."],
-  "checklist": [{"task": "...", "done": false}],
-  "disclaimer": "This is informational document assistance, not legal advice."
+  "schemaVersion": 1
 }
 ```
 
-`sourceRefs` are references into normalized server-side text, not unsupported claims. Every list is bounded. Unknown values use `unknown` or are omitted; the model is not allowed to guess.
-
-## 7. Implemented API boundaries
-
-The browser never calls Groq. Authenticated clients call `/api/demos` and `/api/analysis`; the analysis controller delegates to services and the AI adapter. The route does not build prompts or parse model output. Comparison and clause-specific endpoints remain future boundaries.
-
-## 7. API boundaries
-
-The browser never calls Groq. Routes should include health, analysis, clause explanation, and comparison. Exact contracts are in [API.md](API.md).
-
-## 8. Deployment architecture
-
-A single Node.js process serves static files and `/api`, behind a platform TLS reverse proxy. Environment variables are injected by the platform. No database, object storage, queue, or worker is needed for the initial scope. A deployment may later split static hosting and API hosting, but the API must remain the only Groq caller.
-
-```mermaid
-flowchart LR
- B[Browser over HTTPS] --> P[Managed reverse proxy/TLS]
- P --> N[Node/Express service]
- N --> G[Groq HTTPS API]
- N -. no persistence .-> D[(No document database)]
- E[Deployment secret store] --> N
-```
-
-## 9. Operational controls
-
-Use health checks without secrets, bounded request timeouts, structured redacted logs, request IDs, provider error categorization, dependency pinning, and a documented model configuration. Do not log document text or prompts by default.
-
-## 10. Implementation order
-
-Scaffold and contracts → static UX shell → validators/document service → mocked orchestration → Groq adapter → analysis dashboard → clause/comparison flows → hardening → tests/accessibility audit → deployment.
+This ensures that future revisions to the analysis structure (e.g. adding jurisdiction tags or risk scoring) can be migrated deterministically without breaking backwards compatibility.

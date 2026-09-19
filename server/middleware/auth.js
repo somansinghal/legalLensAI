@@ -9,9 +9,14 @@ export function getSessionToken(req) {
   return match ? decodeURIComponent(match.slice(sessionCookieName.length + 1)) : null;
 }
 
-export function requireAuth(req, res, next) {
-  const session = getSession(getSessionToken(req));
-  if (!session) return next(new AppError(401, 'UNAUTHORIZED', 'Please sign in to access this resource.'));
-  req.session = session;
-  return next();
+export async function requireAuth(req, res, next) {
+  try {
+    const token = getSessionToken(req);
+    const session = await getSession(token);
+    if (!session) return next(new AppError(401, 'UNAUTHORIZED', 'Please sign in to access this resource.'));
+    req.session = session;
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 }

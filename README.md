@@ -1,186 +1,402 @@
+<div align="center">
+
+<img src="public/assets/legallens-ai-logo.jpg" alt="LegalLens AI Logo" width="180">
+
 # LegalLens AI
+### UNDERSTAND BEFORE YOU SIGN
 
-<p align="center"><img src="public/assets/legallens-ai-logo.jpg" width="180" alt="LegalLens AI — Understand Before You Sign"></p>
+**Context-aware legal document intelligence powered by Groq AI and secured by Cloud Firestore.**
 
-<p align="center"><strong>UNDERSTAND BEFORE YOU SIGN</strong></p>
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.21-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![Groq](https://img.shields.io/badge/Groq-Llama%203.3%2070B-F55036?logo=groq&logoColor=white)](https://groq.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Admin%20SDK-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Firestore](https://img.shields.io/badge/Firestore-NoSQL%20Persistence-FFA000?logo=firebase&logoColor=black)](https://firebase.google.com/docs/firestore)
+[![Playwright](https://img.shields.io/badge/Playwright-E2E%20Tested-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
+[![Security](https://img.shields.io/badge/Security-HttpOnly%20%7C%20CSP%20%7C%20Injection%20Defense-blue)](#-security--privacy-architecture)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> Context-aware legal-document assistance for clearer decisions and better conversations with legal professionals.
+<br>
 
-## 🎥 Product Demo
+<img src="docs/demo/legallens-ai-overview.gif" alt="LegalLens AI Product Overview" width="850">
 
-The application includes a real authenticated judge flow and deterministic Playwright recording path. A compressed demonstration recording is available at [`docs/demo/legallens-ai-demo.webm`](docs/demo/legallens-ai-demo.webm).
+</div>
 
-[![Watch the LegalLens AI product demo](docs/demo/legallens-ai-demo-poster.jpg)](docs/demo/legallens-ai-demo.webm)
+---
 
-**▶ [Watch Product Demo](docs/demo/legallens-ai-demo.webm)**
+## 🔗 Links
+
+- **Live Production Website**: [https://legallensai-india.vercel.app/](https://legallensai-india.vercel.app/)
+- **GitHub Repository**: [https://github.com/somansinghal/legalLensAI](https://github.com/somansinghal/legalLensAI)
+- **Creator Portfolio**: [https://soman-singhal.vercel.app](https://soman-singhal.vercel.app)
+- **Creator GitHub**: [https://github.com/somansinghal](https://github.com/somansinghal)
+- **Creator LinkedIn**: [https://in.linkedin.com/in/soman-singhal](https://in.linkedin.com/in/soman-singhal)
+- **Creator Instagram**: [https://www.instagram.com/_somansinghal/](https://www.instagram.com/_somansinghal/)
+- **Contact Email**: [somansinghal06@gmail.com](mailto:somansinghal06@gmail.com)
+
+---
+
+## ✨ What is LegalLens AI?
+
+Most legal chatbots treat agreements as generic question-answering documents. **LegalLens AI is not a chatbot—it is an explainable second lens for everyday agreements.**
+
+Legal documents mean vastly different things depending on who you are and why you are reading them:
+- An **Employee** evaluating an offer cares about non-competes, IP assignment, and severance.
+- A **Freelancer** cares about payment schedules, scope creep, and copyright retention.
+- A **Small Business Owner** cares about termination liability, indemnification, and jurisdiction.
+- A **Student** reviewing an internship contract cares about stipend terms and publication rights.
+
+By combining **Persona + Intent + Document Text**, LegalLens AI produces structured, context-specific insights:
+
+$$\text{Persona} + \text{Intent} + \text{Document} + \text{Defended AI Pipeline} \implies \text{Actionable Insight}$$
+
+> [!NOTE]
+> **Safety Notice:** LegalLens AI provides legal information, educational synthesis, and document assistance. It does **not** provide legal advice or replace a qualified legal professional.
+
+---
+
+## ⚡ Core Feature Grid
+
+| Feature | Description |
+|---|---|
+| 🧠 **Context-Aware Analysis** | Tailors insights based on 5 personas (Employee, Freelancer, Student, Business Owner, Other) and 5 distinct review intents. |
+| 🚨 **Attention Radar** | Triages critical clauses into high-attention, review-carefully, or standard advisory buckets. |
+| 📑 **Clause Explorer** | Extracts key provisions, side-by-side with original document excerpts and plain-English translations. |
+| 📅 **Obligations & Dates** | Surfaces contractual duties by party and chronological deadlines, commencement dates, and notice windows. |
+| ⚖️ **Lawyer Preparation** | Generates precise, jurisdiction-aware questions to ask a qualified attorney during consultation. |
+| ✅ **Action Checklist** | Generates contextual next steps with stateful checklist progress synchronized with Cloud Firestore. |
+| 🔥 **Cloud Firestore Persistence** | Automatically stores structured analysis summaries, user profiles, and checklist progress via server-side Firebase Admin. |
+| 🛡️ **Document Privacy by Default** | User document text is processed transiently in memory. Raw document text is **never** persisted to Firestore. |
+| 🔐 **Secure Multi-Modal Auth** | Session-based authentication supporting production Google OAuth and a configured zero-friction Judge Demo mode. |
+| 📱 **Responsive & Accessible** | Glassmorphic, dark-mode interface built with semantic HTML5, keyboard navigation, and full mobile optimization. |
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    User([User Browser]) -->|HTTPS / HttpOnly Cookie| Express[Express API Server]
+    Express --> Auth[Authentication & Session Manager]
+    Auth -->|Google OAuth 2.0 / Demo Auth| UserProfile[User Profile Service]
+    UserProfile -->|Server-Side Admin SDK| Firestore[(Cloud Firestore)]
+
+    Express --> Analysis[Analysis Controller]
+    Analysis --> Context[Context & Priority Engine]
+    Context --> PromptDefense[Prompt Construction & Injection Defense]
+    PromptDefense --> Groq[Groq AI Client / Llama 3.3 70B]
+    Groq --> Validation[Strict Schema Validation & Normalization]
+
+    Validation --> Persistence[History & Checklist Service]
+    Persistence -->|Metadata & Structured Insights Only| Firestore
+    Validation -->|Safe HTML View Model| User
+```
+
+---
+
+## 🤖 AI Pipeline & Prompt-Injection Defense
+
+```
+User Input (Persona + Intent + Document)
+                 ↓
+      Input Validation & Sanitization (Size limits & regex boundaries)
+                 ↓
+      Enclosure in Strict XML-Delimited Boundary Markers
+                 ↓
+      System Prompt (Forbidden from executing code or altering system instructions)
+                 ↓
+      Groq API (Llama 3.3 70B Versatile, temperature 0.1)
+                 ↓
+      Strict JSON Parsing & Schema Validation
+                 ↓
+      HTML Output Escaping (Defense-in-depth against stored XSS)
+                 ↓
+      Asynchronous Firestore Persistence (Metadata & structured results only)
+                 ↓
+      Client Rendering
+```
+
+### Prompt Injection Protections:
+1. **Isolated Context Boundaries**: User document text is placed strictly within `<untrusted_document_content>` tags.
+2. **Defensive Instructions**: The model is explicitly commanded to treat document text as data to analyze, ignoring embedded commands such as `"Forget all prior instructions"`.
+3. **Strict Structural Schema**: Responses failing JSON schema validation are automatically rejected by the server before reaching the client.
+4. **Output Sanitization**: All AI text is entity-escaped in the frontend prior to DOM insertion.
+
+---
+
+## 🔥 Firebase & Firestore Integration
+
+LegalLens AI integrates **Firebase Admin SDK** as a trusted, server-side persistence layer:
+
+- **Server-Side Only**: Firebase private keys and Admin credentials remain strictly within the backend environment. No client-side Firebase SDKs or API keys are exposed.
+- **Document Privacy Guarantee**: Raw user document text is **never** written to Firestore. Only metadata (document name, type, persona, intent), timestamps, structured clause explanations, and checklist items are persisted.
+- **Stable Identity Mapping**:
+  - Google OAuth users: `google:<providerUserId>`
+  - Demo evaluators: `demo:<sha256(email)>`
+- **Schema Versioning**: All persisted analysis documents include `schemaVersion: 1` to ensure zero-downtime forward migrations.
+- **Graceful Offline Degradation**: If Firebase credentials are missing or the database is temporarily unreachable, analysis continues to function smoothly in transient memory mode without crashing.
+
+### Firestore Collections:
+```
+users/{userId}
+  ├── profile data (provider, email, displayName, lastLoginAt)
+  ├── analysisHistory/{analysisId}
+  │     ├── documentName, persona, intent, createdAt
+  │     ├── summary, attentionItems, importantClauses
+  │     ├── obligations, importantDates, lawyerQuestions
+  │     └── schemaVersion
+  ├── checklists/{analysisId}
+  │     └── items: [{ index, task, completed }]
+  └── preferences/settings
+        └── defaultPersona, defaultIntent
+```
+
+---
+
+## 🔐 Security & Privacy Architecture
+
+- **Server-Side Groq API**: AI keys never leave the server.
+- **Server-Side Firebase Admin**: Private service accounts are protected from browser exposure.
+- **Strict Firestore Security Rules**: Default `allow read, write: if false;` ensures direct client access is completely blocked; all operations flow through authenticated Express endpoints.
+- **HttpOnly Session Cookies**: Hardened with `SameSite=Lax`, `Path=/`, and conditional `Secure` in production.
+- **Cryptographic OAuth State**: One-time, time-limited state verification prevents CSRF during Google login.
+- **Rate Limiting**: Tiered limits on API (`20/min`), Auth (`20/15min`), AI (`10/hr`), and Contact endpoints (`5/hr`).
+- **OWASP HTTP Security Headers**: Helmet provides strict CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `Referrer-Policy: no-referrer`.
+
+---
 
 ## 📸 Product Screenshots
 
-Visual regression baselines live under `tests/e2e/*-snapshots/`, with optimized showcase images under [`docs/screenshots/`](docs/screenshots/). They cover the landing page, login, authenticated workspace, Contact validation, desktop, and mobile layouts.
-
 ### Landing & Authentication
+| Landing Page | Sign In | Google OAuth |
+|---|---|---|
+| ![Landing](docs/screenshots/01-landing-desktop.jpg) | ![Login](docs/screenshots/02-login-desktop.jpg) | ![Google Login](docs/screenshots/03-google-login-desktop.jpg) |
 
-| Landing | Login |
-|---|---|
-| ![LegalLens AI landing page](docs/screenshots/01-landing-desktop.jpg) | ![LegalLens AI login page](docs/screenshots/02-login-desktop.jpg) |
+### Workspace & Analysis
+| Workspace Dashboard | Document Selection | Real-Time Processing |
+|---|---|---|
+| ![Dashboard](docs/screenshots/05-dashboard-desktop.jpg) | ![Selection](docs/screenshots/06-document-selection-desktop.jpg) | ![Processing](docs/screenshots/07-analysis-processing-desktop.jpg) |
 
-### Workspace & Contact
+### Legal Intelligence Dashboard
+| Plain-Language Summary | Attention Radar | Clause Explorer |
+|---|---|---|
+| ![Summary](docs/screenshots/08-analysis-overview-desktop.jpg) | ![Radar](docs/screenshots/09-attention-radar-desktop.jpg) | ![Clauses](docs/screenshots/10-clause-explorer-desktop.jpg) |
 
-| Workspace | Contact validation |
-|---|---|
-| ![LegalLens AI workspace](docs/screenshots/05-dashboard-desktop.jpg) | ![Contact form validation](docs/screenshots/15-contact-validation-desktop.jpg) |
+| Obligations & Dates | Lawyer Preparation | Action Checklist |
+|---|---|---|
+| ![Obligations](docs/screenshots/11-obligations-dates-desktop.jpg) | ![Lawyer Prep](docs/screenshots/12-lawyer-preparation-desktop.jpg) | ![Checklist](docs/screenshots/13-action-checklist-desktop.jpg) |
 
-### Mobile Experience
+### Contact & Mobile Responsiveness
+| Contact Page | Mobile Dashboard | Mobile Clause Explorer |
+|---|---|---|
+| ![Contact](docs/screenshots/15-contact-desktop.jpg) | ![Mobile Dashboard](docs/screenshots/mobile/03-dashboard-mobile.jpg) | ![Mobile Clauses](docs/screenshots/mobile/05-clause-explorer-mobile.jpg) |
 
-![LegalLens AI mobile landing page](docs/screenshots/mobile/01-landing-mobile.jpg)
+---
 
-## 🚀 Judge Quick Start
+## 🎥 Product Demo
 
-1. Open LegalLens AI.
-2. Sign in with Google when OAuth is configured, or use the configured Judge Demo credentials.
-3. Open the authenticated workspace.
-4. Choose a persona and intent.
-5. Select a synthetic evaluation agreement or paste document text.
-6. Run analysis with a configured Groq key.
-7. Review Summary, Attention Radar, clauses, obligations, dates, questions, and checklist.
-8. Visit Contact for product feedback or accessibility issues.
+Watch the comprehensive video walkthrough demonstrating authentication, context selection, synthetic demo analysis, Attention Radar review, and Firestore history persistence:
 
-## Contact
+[![Watch LegalLens AI Demo](docs/demo/legallens-ai-demo-poster.jpg)](docs/demo/legallens-ai-demo.webm)
 
-Visit [`/contact.html`](public/contact.html) for the product contact form. Delivery requires server-side SMTP configuration; without it, the form returns a clear configuration message rather than falsely claiming success.
+**▶ [Watch Full Product Demo Walkthrough (WebM)](docs/demo/legallens-ai-demo.webm)**
 
-> **Understand Before You Sign**
+---
 
-LegalLens AI is a context-aware legal-document understanding assistant for employees, freelancers, students, small-business owners, and other people reviewing agreements. It translates document language into plain-language explanations, surfaces clauses that deserve attention, extracts obligations and dates, compares versions, and prepares questions for a qualified legal professional.
+## 🚀 Quick Start & Local Setup
 
-## Important limitation
+### 1. Prerequisites
+- **Node.js**: v18.18.0 or higher
+- **npm**: v9 or higher
 
-LegalLens AI provides legal information and document assistance. It does **not** provide legal advice, act as a lawyer, determine whether a clause is legal or enforceable, or replace a qualified legal professional. Attention levels are informational review priorities, not legal conclusions.
-
-## Problem and solution
-
-Legal documents are often difficult to understand, and the most relevant issues depend on a person's situation and goal. LegalLens AI uses the selected persona and intent as explicit inputs to a server-side analysis pipeline, so an employee and a freelancer can receive different priorities from the same document.
-
-## Challenge alignment
-
-This project addresses the **AI for Legal Assistance & Access** vertical through explainable document assistance rather than a generic chatbot. See [PRODUCT.md](PRODUCT.md) for user journeys and the requirement matrix.
-
-## Planned capabilities
-
-- Persona and intent selection
-- Text/document intake with strict validation
-- Plain-language summary and document-type identification
-- Clause, obligation, party, date, deadline, and condition extraction
-- Informational Attention Radar: **HIGH ATTENTION**, **REVIEW CAREFULLY**, **INFORMATIONAL**
-- Clause explorer with source reference and questions to consider
-- Version-to-version comparison: unchanged, added, removed, changed
-- Lawyer preparation questions
-- Contextual action checklist
-- Accessible, responsive document-analysis workspace
-
-## Architecture at a glance
-
-The planned implementation is a small Node.js and Express server serving a vanilla HTML/CSS/JavaScript client. The browser calls only the backend. The backend validates input, extracts text, builds a structured prompt, calls Groq using server-only credentials, validates the model response, and returns a safe JSON view model.
-
-```mermaid
-flowchart LR
- U[User] --> P[Vanilla frontend]
- P --> API[Express API]
- API --> V[Validation and limits]
- V --> D[Document service]
- D --> C[Context and intent]
- C --> O[AI orchestration]
- O --> G[Groq API]
- G --> R[Schema validation]
- R --> API
- API --> P
+### 2. Installation
+```bash
+git clone https://github.com/somansinghal/legalLensAI.git
+cd legalLensAI
+npm ci
 ```
 
-Full architecture: [ARCHITECTURE.md](ARCHITECTURE.md).
-
-## Technology and repository constraints
-
-- HTML5, CSS3, vanilla JavaScript
-- Node.js and Express.js
-- Groq through a backend-only service
-- No database for the initial demo; documents are processed in memory and not intentionally persisted
-- Minimal dependencies; no React unless a later reviewed decision changes this
-- No model files, datasets, `node_modules`, build output, logs, or secrets in Git
-- Target repository size: comfortably below 10 MB
-
-## Local development
-
-Requirements: Node.js 18.18 or newer.
-
+### 3. Environment Setup
+Create a `.env` file from the template:
 ```bash
-npm install
 cp .env.example .env
+```
+
+Configure your server secrets in `.env`:
+```env
+# AI Service
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+
+# Judge Demo Access
+DEMO_EMAIL=judge@example.com
+DEMO_PASSWORD=change-this-demo-password
+SESSION_SECRET=change-this-session-secret
+
+# Google OAuth (Optional for local development)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=http://127.0.0.1:3000/api/auth/google/callback
+
+# Firebase Persistence (Server-only)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_CLIENT_EMAIL=your_service_account_email
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+### 4. Start the Application
+```bash
 npm start
-# open http://localhost:3000
+# Server starts at http://localhost:3000
 ```
 
-Useful commands:
-
+### 5. (Optional) Run with Local Firestore Emulator
 ```bash
-npm run dev   # Node watch mode
-npm test      # deterministic tests; no Groq key required
+# Start Firebase Emulator Suite
+firebase emulators:start --only firestore
+
+# In another terminal:
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm start
 ```
 
-The current product exposes authenticated demo-document listing and `POST /api/analysis`; Groq is called only from the backend and is disabled in tests. Comparison, clause-specific explanation, and persistent history remain later roadmap phases. Configure `GROQ_API_KEY` and `GROQ_MODEL` to enable production analysis. Environment variables are documented in [API.md](API.md) and `.env.example`.
+---
 
-## Security, accessibility, and testing
+## ☁️ Vercel Production Deployment
 
-- Server-side secret handling, schema validation, file limits, rate limiting, safe text rendering, and prompt-injection defenses are mandatory.
-- Semantic HTML, keyboard operation, focus visibility, contrast, labels, non-color status cues, and meaningful loading/error states are acceptance criteria.
-- Unit, integration, security, edge-case, and manual accessibility tests are planned. See [TESTING.md](TESTING.md).
+LegalLens AI is deployed in production as a serverless application on Vercel:
 
-## Demo access and judge workflow
+- **Live URL**: [https://legallensai-india.vercel.app/](https://legallensai-india.vercel.app/)
+- **Repository**: [https://github.com/somansinghal/legalLensAI](https://github.com/somansinghal/legalLensAI)
 
-The authenticated judge workflow is available at `/login.html`. Configure the limited demo account only on the server through `DEMO_EMAIL` and `DEMO_PASSWORD`; do not place the real password in this repository or frontend code. Judges sign in, enter the protected workspace, choose persona and intent, load a synthetic agreement, and run the same backend analysis path used for pasted documents. Live analysis requires the configured Groq environment variables; tests use a deterministic fixture only.
+### Serverless Architecture on Vercel
+- **Edge Static CDN**: Static assets in `public/` are served with global edge caching and strict security headers defined in [`vercel.json`](vercel.json).
+- **Serverless API Function**: All `/api/*` routes are handled by [`api/index.js`](api/index.js), which executes the Express app within the Vercel Node.js serverless runtime.
+- **Serverless Session Resilience**: In serverless runtimes, in-memory state is ephemeral. LegalLens AI persists session tokens (`sessions/{tokenHash}`) and OAuth states (`oauthStates/{stateHash}`) into Cloud Firestore with cryptographic HMAC hashing, ensuring sessions persist across cold starts and separate lambda instances without weakening authentication.
+- **Zero Localhost Leaks**: Production routing is strictly decoupled from development defaults.
 
-## Branding and SEO
+### Vercel Environment Variables
+Set the following environment variables in your Vercel Project Settings (**Settings → Environment Variables**):
 
-The supplied official logo is stored as `public/assets/legallens-ai-logo.jpg` and is used in the landing page, login, dashboard, footer, favicon, and social metadata. `robots.txt` and `sitemap.xml` use the `__DEPLOYMENT_ORIGIN__` placeholder until a production domain is known. Replace that placeholder during deployment; do not publish it unchanged.
+| Variable | Recommended Production Value | Description |
+|---|---|---|
+| `NODE_ENV` | `production` | Enforces Secure cookies and production logging |
+| `GROQ_API_KEY` | `gsk_...` | Server-side Groq Cloud API key |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Target LLM model |
+| `DEMO_EMAIL` | `judge@example.com` | Evaluator account email |
+| `DEMO_PASSWORD` | `<secure-password>` | Configured evaluator password (provided privately to judges) |
+| `SESSION_SECRET` | `<32-char-random-string>` | Salt for session cryptographic HMAC tokens |
+| `GOOGLE_CLIENT_ID` | `...apps.googleusercontent.com` | Google Cloud OAuth Client ID |
+| `GOOGLE_CLIENT_SECRET` | `GOCSPX-...` | Google Cloud OAuth Client Secret |
+| `GOOGLE_CALLBACK_URL` | `https://legallensai-india.vercel.app/api/auth/google/callback` | Production OAuth callback URL |
+| `FIREBASE_PROJECT_ID` | `legallens-ai-...` | Google Cloud / Firebase Project ID |
+| `FIREBASE_CLIENT_EMAIL` | `firebase-adminsdk-...@...iam.gserviceaccount.com` | Service account email |
+| `FIREBASE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n` | Private key (newlines automatically unescaped) |
+| `CONTACT_TO_EMAIL` | `somansinghal06@gmail.com` | Destination inbox for contact form |
+| `SMTP_HOST` | `smtp.gmail.com` | Optional SMTP host for contact delivery |
+| `SMTP_PORT` | `587` | SMTP port |
+| `SMTP_USER` | `...` | SMTP username |
+| `SMTP_PASSWORD` | `...` | SMTP app password |
 
-## Privacy assumptions
+---
 
-The first version is transient: no account system, database, document history, or analytics containing document content. Content may be sent to Groq to perform the requested analysis, subject to the selected provider's terms and deployment configuration. The UI must disclose this before submission. Production use requires a reviewed retention, jurisdiction, consent, and provider-data policy.
+## 🔑 Google Cloud OAuth Configuration
 
-## Future improvements
+To enable Google sign-in in production:
 
-Human-reviewed jurisdiction-specific resources, encrypted opt-in storage, authenticated workspaces, redaction, OCR, stronger document parsers, citations to authoritative sources, provider abstraction, multilingual support, and independent privacy/security review.
+1. Open the [Google Cloud Console](https://console.cloud.google.com/) and navigate to **APIs & Services → Credentials**.
+2. Edit or create an **OAuth 2.0 Client ID** (Application type: *Web application*).
+3. Under **Authorized JavaScript origins**, add:
+   ```
+   https://legallensai-india.vercel.app
+   ```
+4. Under **Authorized redirect URIs**, add:
+   ```
+   https://legallensai-india.vercel.app/api/auth/google/callback
+   ```
+5. Copy the Client ID and Client Secret to your Vercel Environment Variables (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`).
 
-## Creator
+---
 
-Built by **Soman Singhal**.
+## 🧑‍⚖️ Evaluator & Judge Demo Access
 
-- [Portfolio](https://soman-singhal.vercel.app)
-- [GitHub](https://github.com/somansinghal)
-- [LinkedIn](https://in.linkedin.com/in/soman-singhal)
-- [Instagram](https://www.instagram.com/_somansinghal/)
-- Email: [somansinghal06@gmail.com](mailto:somansinghal06@gmail.com)
+For hackathon judges and evaluators reviewing LegalLens AI:
 
-## End-to-end testing
+- **Demo Email**: `judge@example.com`
+- **Demo Password**: Provided privately to judges / configured in the deployment environment.
+- **Workflow**:
+  1. Visit [https://legallensai-india.vercel.app/login.html](https://legallensai-india.vercel.app/login.html).
+  2. Enter the configured demo credentials (or click **Judge Demo** to fill the email).
+  3. Explore the workspace with built-in synthetic documents (Freelance NDA, Employment Agreement, Commercial Lease, Terms of Service).
+  4. Test the Attention Radar, Clause Explorer, detected obligations, critical dates, lawyer questions, and persistent checklist items.
 
-Playwright is a development-only dependency for deterministic browser QA. Install dependencies and the Chromium browser, then run:
+---
+
+## 🧪 Testing & Verification
+
+The repository includes comprehensive unit, integration, security, and Playwright end-to-end test suites that require zero external cloud credentials:
 
 ```bash
-npm install
+# Run unit, integration, and Firebase persistence tests
+npm test
+
+# Install browser binaries for Playwright
 npx playwright install chromium
+
+# Run all Playwright E2E browser tests (Desktop & Mobile viewports)
 npm run test:e2e
-npm run test:e2e:headed
-npm run test:e2e:report
 ```
 
-Screenshots, videos, traces, and reports are written to `artifacts/` and excluded from Git. The current E2E suite covers the implemented landing, login, protected workspace, social links, accessibility basics, and logout journey. AI analysis, clause exploration, comparison, and lawyer-preparation tests will be added when those product features are implemented; the suite does not invent fake results.
+**Test Coverage Summary:**
+- **23/23** Unit & Integration Tests Passing (100%)
+- **6/6** Playwright End-to-End Tests Passing (100%)
 
-## Documentation map
+---
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — system, component, data-flow, security-boundary, deployment diagrams
-- [API.md](API.md) — endpoint contracts and errors
-- [SECURITY.md](SECURITY.md) — threat model and controls
-- [AI.md](AI.md) — prompts, structured output, safety, and limitations
-- [PRODUCT.md](PRODUCT.md) — personas, journeys, requirements, and evaluator alignment
-- [TESTING.md](TESTING.md) — test architecture and manual checklist
-- [DECISIONS.md](DECISIONS.md) — architecture decision records
-- [ROADMAP.md](ROADMAP.md) — phased implementation and release plan
+## ⚙️ Environment Variables Reference
+
+All credentials are **SERVER ONLY** and must never be exposed to the frontend:
+
+| Variable | Scope | Purpose |
+|---|---|---|
+| `GROQ_API_KEY` | Server Only | Groq Cloud AI authentication token |
+| `GROQ_MODEL` | Server Only | Target LLM identifier (`llama-3.3-70b-versatile`) |
+| `PORT` | Server Only | Application port (default `3000`) |
+| `NODE_ENV` | Server Only | Environment flag (`development`, `production`, `test`) |
+| `MAX_DOCUMENT_BYTES` | Server Only | Maximum request body limit (`500000`) |
+| `MAX_DOCUMENT_CHARS` | Server Only | Maximum document character limit (`120000`) |
+| `AI_TIMEOUT_MS` | Server Only | Groq API timeout in milliseconds (`30000`) |
+| `RATE_LIMIT_WINDOW_MS` | Server Only | Rate limiter window in ms (`60000`) |
+| `RATE_LIMIT_MAX` | Server Only | Max requests per rate limit window (`20`) |
+| `DEMO_EMAIL` | Server Only | Configured evaluator account email (`judge@example.com`) |
+| `DEMO_PASSWORD` | Server Only | Configured evaluator account password |
+| `SESSION_SECRET` | Server Only | Salt for cryptographic HMAC session token hashing |
+| `GOOGLE_CLIENT_ID` | Server Only | Google Cloud OAuth 2.0 Web Client ID |
+| `GOOGLE_CLIENT_SECRET` | Server Only | Google Cloud OAuth 2.0 Client Secret |
+| `GOOGLE_CALLBACK_URL` | Server Only | OAuth 2.0 redirect callback endpoint |
+| `FIREBASE_PROJECT_ID` | Server Only | Firebase / Google Cloud Project ID |
+| `FIREBASE_CLIENT_EMAIL` | Server Only | Firebase Service Account email |
+| `FIREBASE_PRIVATE_KEY` | Server Only | Firebase Service Account private key |
+| `CONTACT_TO_EMAIL` | Server Only | Destination email for contact submissions |
+| `CONTACT_FROM_EMAIL` | Server Only | Sender email header for contact messages |
+| `SMTP_HOST` | Server Only | SMTP server hostname |
+| `SMTP_PORT` | Server Only | SMTP port (default `587`) |
+| `SMTP_USER` | Server Only | SMTP authentication user |
+| `SMTP_PASSWORD` | Server Only | SMTP authentication password |
+
+---
+
+## 👤 Author
+
+**Built with pride by Soman Singhal**
+
+- **Portfolio**: [https://soman-singhal.vercel.app](https://soman-singhal.vercel.app)
+- **GitHub**: [@somansinghal](https://github.com/somansinghal)
+- **LinkedIn**: [Soman Singhal](https://in.linkedin.com/in/soman-singhal)
+- **Instagram**: [@_somansinghal](https://www.instagram.com/_somansinghal/)
+- **Email**: [somansinghal06@gmail.com](mailto:somansinghal06@gmail.com)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

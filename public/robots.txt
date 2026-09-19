@@ -1,7 +1,10 @@
 User-agent: *
 Allow: /
+
+Disallow: /dashboard
 Disallow: /dashboard.html
 Disallow: /api/
+Disallow: /artifacts/
+Disallow: /playwright-report/
 
-# Replace __DEPLOYMENT_ORIGIN__ with the public HTTPS origin at deployment time.
-Sitemap: __DEPLOYMENT_ORIGIN__/sitemap.xml
+Sitemap: https://legallensai-india.vercel.app/sitemap.xml

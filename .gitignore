@@ -14,3 +14,7 @@ Thumbs.db
 *.log
 *.tmp
 *.swp
+serviceAccountKey.json
+*service-account*.json
+*serviceAccount*.json
+credentials.json

@@ -1,130 +1,324 @@
-# API Contract (planned)
+# LegalLens AI — API Specification
 
-The API is server-side only. It is intentionally stateless for the initial demo. All endpoints are HTTPS in deployment and return JSON. Browser clients must not receive provider credentials.
+The LegalLens AI backend is an Express HTTP JSON API. All endpoints operate over HTTPS in production and return standardized JSON error and success envelopes.
 
-## Common rules
+---
 
-- `Content-Type: application/json` for pasted text and clause requests.
-- Multipart upload may be added only for explicitly allowlisted formats.
-- Maximum normalized document length and raw request size are configuration values, documented in deployment configuration; reject before AI invocation.
-- Persona and intent are enum values, not arbitrary prompt text.
-- Every response includes an opaque `requestId` when available.
-- Responses contain an informational disclaimer.
+## Global Standards
 
-## `GET /api/health`
-
-Returns process health without configuration, prompt, or provider secrets.
-
-```json
-{"status":"ok","service":"legallens-api","version":"1.0.0"}
-```
-
-## `POST /api/analysis`
-
-Analyzes one document.
-
-Request:
-
-```json
-{
-  "persona":"employee",
-  "intent":"understand_before_signing",
-  "document":{"mode":"text","name":"contract.txt","text":"..."}
-}
-```
-
-Allowed personas: `employee`, `freelancer`, `student`, `business_owner`, `other`.
-
-Allowed intents: `understand_before_signing`, `find_obligations`, `understand_termination`, `find_deadlines`, `prepare_lawyer_questions`.
-
-Response: `200 AnalysisResponse` as defined in [ARCHITECTURE.md](ARCHITECTURE.md). The server, not the model, adds `requestId` and the legal disclaimer.
-
-## `POST /api/clauses/explain`
-
-Explains a selected clause in the context of the original request. The client sends the selected text and a short source reference; the server revalidates bounds and treats the text as untrusted document content.
-
-```json
-{
-  "persona":"freelancer",
-  "intent":"understand_before_signing",
-  "clause":{"text":"...","sourceRef":"section-4"}
-}
-```
-
-Response: original text, plain-language explanation, obligations, potential implications stated cautiously, questions to consider, source reference, disclaimer.
-
-## `POST /api/comparison`
-
-Compares two documents or versions.
-
-```json
-{
-  "persona":"business_owner",
-  "intent":"compare_agreements",
-  "documents":{
-    "a":{"name":"old.txt","text":"..."},
-    "b":{"name":"new.txt","text":"..."}
+- **Base URL**: `/api`
+- **Response Format**: `application/json; charset=utf-8`
+- **Authentication**: Stateful HttpOnly cookie (`legallens_session`)
+- **Error Format**:
+  ```json
+  {
+    "requestId": "550e8400-e29b-41d4-a716-446655440000",
+    "error": {
+      "code": "ERROR_CODE",
+      "message": "Human-readable safe explanation."
+    }
   }
-}
-```
+  ```
 
-Response:
+---
 
-```json
-{
-  "requestId":"opaque-id",
-  "status":"complete",
-  "changes":[
-    {"status":"changed","category":"payment","title":"Payment terms","before":"...","after":"...","whyItMayMatter":"...","sourceRefs":["a:section-2","b:section-2"]}
-  ],
-  "unchangedAreas":["..."],
-  "questionsForLawyer":["..."],
-  "disclaimer":"..."
-}
-```
+## 1. System Endpoints
 
-Statuses are exactly `unchanged`, `added`, `removed`, or `changed`. Deterministic text diff is the source of change detection; AI supplies cautious categorization/explanation.
+### `GET /api/health`
+Returns public service status and liveness.
 
-## Validation and errors
-
-```json
-{
-  "error": {
-    "code":"DOCUMENT_TOO_LARGE",
-    "message":"The document is too large to process. Please provide a shorter document.",
-    "requestId":"opaque-id"
+- **Auth**: Public
+- **Rate Limit**: 20 req/min
+- **Response `200 OK`**:
+  ```json
+  {
+    "status": "ok",
+    "service": "legallens-api",
+    "version": "0.1.0",
+    "timestamp": "2026-09-19T17:00:00.000Z"
   }
-}
-```
+  ```
 
-Codes: `INVALID_REQUEST` (400), `UNSUPPORTED_MEDIA_TYPE` (415), `DOCUMENT_TOO_LARGE` (413), `EMPTY_DOCUMENT` (422), `RATE_LIMITED` (429), `AI_TIMEOUT` (504), `AI_UNAVAILABLE` (503), `AI_RESPONSE_INVALID` (502), `INTERNAL_ERROR` (500). User messages never contain stack traces, keys, prompts, provider internals, or raw uploaded content.
+---
 
-## OAuth endpoints
+## 2. Authentication Endpoints
 
-`GET /api/auth/google` starts Google OpenID Connect only when `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL` are configured. It generates a cryptographically random state and requests only `openid email profile`. `GET /api/auth/google/callback` validates state, exchanges the code server-side, verifies the Google profile email, creates the existing application session, and redirects to a safe internal path. OAuth failures redirect generically to login and never expose tokens or provider details.
+### `GET /api/auth/google`
+Initiates Google OAuth 2.0 authorization flow.
 
-## Contact endpoint
+- **Auth**: Public
+- **Response `302 Found`**: Redirects to `accounts.google.com` with state parameter.
 
-`POST /api/contact` validates name, email, subject, inquiry type, consent at the UI layer, and message length. It sends plain-text mail through server-side SMTP variables when configured. Without SMTP configuration it returns `503 CONTACT_UNAVAILABLE`; it never falsely reports delivery.
+### `GET /api/auth/google/callback`
+Consumes OAuth code and state, fetches Google profile, verifies email, creates user profile in Firestore, and sets HttpOnly session cookie.
 
-## Analysis and demo endpoints
+- **Auth**: Public
+- **Response `302 Found`**: Redirects to `/dashboard.html` or `/login.html?oauth=failed`.
 
-`GET /api/demos` and `GET /api/demos/:id` require authentication and expose only small synthetic evaluation documents. `POST /api/analysis` requires authentication and accepts `{ persona, intent, document: { name, text } }`. The backend validates the context, normalizes transient text, builds a separated prompt, calls Groq server-side, parses and validates structured JSON, and returns a safe analysis response. Missing provider configuration returns `503 AI_UNAVAILABLE`; malformed model output returns `502 AI_RESPONSE_INVALID`. Test mode can use a deterministic fixture but production never does.
+### `POST /api/auth/login`
+Authenticates evaluator using configured demo credentials.
 
-## Authentication endpoints
+- **Auth**: Public
+- **Rate Limit**: 20 req / 15 min
+- **Request Body**:
+  ```json
+  {
+    "email": "judge@example.com",
+    "password": "test-password"
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "authenticated": true,
+    "user": {
+      "userId": "demo:7839bf021a8d94c1",
+      "email": "judge@example.com",
+      "role": "demo",
+      "displayName": "Judge Demo User"
+    }
+  }
+  ```
 
-`POST /api/auth/login` accepts `{ "email": "...", "password": "..." }` and sets a server-managed `HttpOnly`, `SameSite=Lax` session cookie. Invalid credentials return the same generic `401 INVALID_CREDENTIALS` response. `GET /api/auth/session` returns the limited demo user profile only when authenticated. `POST /api/auth/logout` invalidates the server-side session and clears the cookie. `GET /api/protected/workspace` demonstrates authenticated API protection and returns `401 UNAUTHORIZED` without a valid session.
+### `POST /api/auth/logout`
+Destroys session and clears cookie.
 
-Authentication is intentionally limited to the configured competition demo account; there is no account creation or admin surface.
+- **Auth**: Public
+- **Response `200 OK`**: `{"authenticated": false}`
 
-## Security assumptions
+### `GET /api/auth/session`
+Returns verified active session metadata.
 
-No end-user authentication is required for the competition demo, so rate limiting and abuse controls are important. If deployed publicly, add platform-level bot protection and revisit authentication before persistent or sensitive features. CORS should be same-origin by default; if separated, use an explicit allowlist.
+- **Auth**: Required (`requireAuth`)
+- **Response `200 OK`**:
+  ```json
+  {
+    "authenticated": true,
+    "user": {
+      "userId": "demo:7839bf021a8d94c1",
+      "email": "judge@example.com",
+      "role": "demo",
+      "displayName": "Judge Demo User",
+      "photoURL": null
+    },
+    "expiresAt": 1789830000000
+  }
+  ```
 
-## Environment
+---
 
-- `GROQ_API_KEY` — required server secret, never exposed
-- `GROQ_MODEL` — configurable model identifier, validated against deployment policy
-- `PORT` — server port
-- `MAX_DOCUMENT_BYTES`, `MAX_DOCUMENT_CHARS`, `AI_TIMEOUT_MS`, `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX` — bounded operational settings
-- `NODE_ENV` — runtime mode
+## 3. Analysis & Intelligence Endpoints
+
+### `POST /api/analysis`
+Executes context-aware legal document analysis via Groq AI, validates response against JSON schema, and persists structured results to Firestore.
+
+- **Auth**: Required (`requireAuth`)
+- **Rate Limit**: 10 req / hour
+- **Request Body**:
+  ```json
+  {
+    "persona": "employee",
+    "intent": "understand_before_signing",
+    "document": {
+      "name": "Offer_Letter.txt",
+      "text": "Full document plain text content..."
+    }
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "requestId": "550e8400-e29b-41d4-a716-446655440000",
+    "analysisId": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+    "persisted": true,
+    "document": {
+      "name": "Offer_Letter.txt",
+      "documentType": "Employment Agreement",
+      "duration": "Indefinite",
+      "parties": [{"name": "Acme Corp", "role": "Employer"}]
+    },
+    "context": {
+      "persona": "employee",
+      "intent": "understand_before_signing"
+    },
+    "summary": [{"text": "Standard employment contract..."}],
+    "attentionItems": [
+      {
+        "level": "high_attention",
+        "title": "Non-compete clause",
+        "explanation": "Restricts employment for 12 months post-departure.",
+        "suggestedAction": "Clarify geographic scope."
+      }
+    ],
+    "importantClauses": [
+      {
+        "title": "Intellectual Property",
+        "attention": "review_carefully",
+        "sourceText": "Employee agrees all inventions...",
+        "explanation": "Transfers all rights to employer."
+      }
+    ],
+    "obligations": [
+      {"party": "Employee", "action": "Give 30 days notice"}
+    ],
+    "importantDates": [
+      {"value": "2026-10-01", "label": "Effective Date", "event": "Start of employment"}
+    ],
+    "lawyerQuestions": [
+      "Is the non-compete enforceable in my state?"
+    ],
+    "checklist": [
+      {"task": "Verify notice window requirements", "completed": false}
+    ],
+    "disclaimer": "Informational assistance only. Not legal advice."
+  }
+  ```
+
+---
+
+## 4. Analysis History Endpoints (Firestore)
+
+### `GET /api/analysis/history`
+Returns previous analysis metadata for the authenticated user, sorted newest first.
+
+- **Auth**: Required (`requireAuth`)
+- **Rate Limit**: 20 req/min
+- **Response `200 OK`**:
+  ```json
+  {
+    "items": [
+      {
+        "id": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+        "analysisId": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+        "documentName": "Offer_Letter.txt",
+        "documentType": "Employment Agreement",
+        "persona": "employee",
+        "intent": "understand_before_signing",
+        "summaryPreview": "Standard employment contract...",
+        "attentionCount": 1,
+        "createdAt": "2026-09-19T17:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+### `GET /api/analysis/history/:id`
+Retrieves a specific past analysis result. User ownership is strictly verified.
+
+- **Auth**: Required (`requireAuth`)
+- **Response `200 OK`**:
+  ```json
+  {
+    "item": {
+      "analysisId": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+      "document": { "name": "Offer_Letter.txt", "documentType": "Employment Agreement" },
+      "context": { "persona": "employee", "intent": "understand_before_signing" },
+      "summary": [...],
+      "attentionItems": [...],
+      "importantClauses": [...],
+      "obligations": [...],
+      "importantDates": [...],
+      "lawyerQuestions": [...],
+      "checklist": [...],
+      "schemaVersion": 1,
+      "createdAt": "2026-09-19T17:00:00.000Z"
+    }
+  }
+  ```
+- **Response `404 Not Found`**: Returned if analysis doesn't exist or belongs to another user.
+
+---
+
+## 5. Checklist Synchronization Endpoints
+
+### `GET /api/checklists/:analysisId`
+Retrieves interactive checklist completion state for an analysis.
+
+- **Auth**: Required (`requireAuth`)
+- **Response `200 OK`**:
+  ```json
+  {
+    "checklist": {
+      "analysisId": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+      "documentName": "Offer_Letter.txt",
+      "items": [
+        {"index": 0, "task": "Verify notice window requirements", "completed": true}
+      ],
+      "updatedAt": "2026-09-19T17:05:00.000Z"
+    }
+  }
+  ```
+
+### `PATCH /api/checklists/:analysisId`
+Updates checklist task completion. Verifies ownership.
+
+- **Auth**: Required (`requireAuth`)
+- **Request Body**:
+  ```json
+  {
+    "index": 0,
+    "completed": true
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "checklist": {
+      "analysisId": "8f3b4a2e-4b68-45d2-9d7a-1123456789ab",
+      "items": [
+        {"index": 0, "task": "Verify notice window requirements", "completed": true}
+      ],
+      "updatedAt": "2026-09-19T17:05:01.000Z"
+    }
+  }
+  ```
+
+---
+
+## 6. Synthetic Demo Documents
+
+### `GET /api/demos`
+Returns catalog of pre-configured synthetic agreements.
+
+- **Auth**: Required (`requireAuth`)
+- **Response `200 OK`**:
+  ```json
+  {
+    "demos": [
+      {"id": "employment-agreement", "title": "Employment Agreement", "label": "Full-time offer"},
+      {"id": "mutual-nda", "title": "Mutual Non-Disclosure Agreement", "label": "Confidentiality"},
+      {"id": "saas-terms", "title": "SaaS Terms of Service", "label": "B2B Subscription"},
+      {"id": "consulting-agreement", "title": "Consulting Agreement", "label": "Independent contractor"}
+    ]
+  }
+  ```
+
+### `GET /api/demos/:id`
+Returns synthetic text for chosen demo agreement.
+
+---
+
+## 7. Contact Endpoint
+
+### `POST /api/contact`
+Receives product inquiries, accessibility flags, and bug reports.
+
+- **Auth**: Public
+- **Rate Limit**: 5 req / hour
+- **Request Body**:
+  ```json
+  {
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "subject": "Accessibility Feedback",
+    "inquiryType": "Accessibility",
+    "message": "Suggested contrast enhancement on high-attention badges."
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Your message has been received. Thank you for contacting LegalLens AI."
+  }
+  ```

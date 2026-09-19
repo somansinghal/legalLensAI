@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Deny all direct client access.
+    // LegalLens AI accesses Firestore exclusively through the trusted server-side
+    // Firebase Admin SDK, ensuring strict authentication, authorization, and data validation.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,74 +1,38 @@
-# Product Definition and Alignment
+# LegalLens AI — Product Specification
 
-## Problem
+## 1. Product Vision
 
-People often face contracts without affordable, timely legal explanation. Generic chat interfaces lack context and can create false confidence. LegalLens AI focuses on a selected situation and goal, then connects outputs to document text and preparation for professional discussion.
+Legal documents are intentionally written in dense legal terminology that creates an information asymmetry between individuals and institutional drafters. **LegalLens AI empowers everyday people to understand before they sign.**
 
-## Personas
+Rather than providing open-ended chatbot dialogue that may hallucinate legal assertions, LegalLens AI delivers structured, context-specific document intelligence anchored to the user's specific role and goals.
 
-- **Employee** — wants to understand before signing, compensation, notice, confidentiality, restrictions, and termination.
-- **Freelancer** — prioritizes payment, deliverables, deadlines, intellectual property, liability, and client obligations.
-- **Student** — needs approachable explanations of housing, internship, education, or service agreements and deadlines.
-- **Business owner** — reviews vendor, employment, client, and partnership terms, with attention to obligations, payment, liability, and exit terms.
-- **Other/general user** — receives neutral extraction and is encouraged to seek professional help.
+---
 
-## Core journey
+## 2. Core User Experience
 
-1. Welcome and legal-information disclaimer.
-2. Select persona and intent.
-3. Paste or upload a document; see privacy/data-processing notice.
-4. Client validation and accessible loading state.
-5. Dashboard: summary, Attention Radar, clauses, obligations, dates.
-6. Open a clause to inspect source, explanation, implications, and questions.
-7. Generate lawyer questions and an action checklist.
-8. Optionally compare a second version.
-9. Export/share is out of initial scope unless privacy and redaction are reviewed.
+### 1. Context Selection
+Users begin by specifying their perspective:
+- **Persona**: Employee, Freelancer, Student, Business Owner, or Other.
+- **Intent**: Understand before signing, Find obligations, Understand termination, Find deadlines, or Prepare lawyer questions.
 
-## User stories
+### 2. Document Input
+- **Synthetic Demos**: Instantly test pre-configured agreements (Employment Agreement, Mutual NDA, SaaS Terms of Service, Consulting Agreement).
+- **Custom Input**: Paste proprietary agreements directly into the secure document buffer.
 
-- As an employee, I want termination and notice clauses prioritized before signing.
-- As a freelancer, I want payment and IP terms explained in plain language.
-- As a user, I want to see the document text behind an attention item.
-- As a reviewer, I want added/removed/changed terms clearly labeled.
-- As a user, I want questions to ask a lawyer, not a false legal verdict.
-- As a keyboard or screen-reader user, I want every workflow operable and understandable.
+### 3. Structured Intelligence Modules
+1. **Plain-Language Summary**: Executive overview of core terms, duration, and parties.
+2. **Attention Radar**: Triages clauses into high attention (urgent review needed), review carefully, or standard provisions.
+3. **Clause Explorer**: Side-by-side display of original document excerpts alongside clear, plain-language translations.
+4. **Obligations**: Actionable breakdown of responsibilities categorized by party.
+5. **Important Dates**: Chronological timeline of effective dates, renewals, and notice periods.
+6. **Questions for a Legal Professional**: Prepares high-leverage questions to optimize time and expense during legal consultations.
+7. **Action Checklist**: Interactive, persistent next steps synchronized to Cloud Firestore.
+8. **Analysis History**: Access previous analyses at any time without re-running Groq AI.
 
-## Product decisions
+---
 
-Attention is a review-priority signal, not a legal-risk verdict. Context changes prioritization, not facts. The interface is a workspace with evidence and actions, not a chat stream. The first release favors pasted text and a small allowlist of document formats to reduce security risk.
+## 3. Data Privacy & Compliance
 
-## Problem statement alignment matrix
-
-| Challenge requirement | LegalLens AI feature | Implementation | Demonstration evidence |
-|---|---|---|---|
-| Simplify complex documents | Plain-language summary and clause explainer | Structured analysis response with source refs | Same clause shown beside explanation |
-| Compare agreements | Comparison workspace | Deterministic diff plus cautious AI explanation | Added/removed/changed/unchanged labels |
-| Highlight important clauses | Attention Radar | Context-aware bounded attention levels | Employee vs freelancer priority demo |
-| Identify obligations | Obligations panel | Party/action/condition/deadline schema | Source-linked obligations |
-| Answer document questions | Clause explainer | Selected text task endpoint | Original text and questions |
-| Explain options/next steps | Checklist and lawyer preparation | Contextual action/question generation | Before-signing checklist |
-| Summaries/checklists | Summary and action panels | Validated arrays and deterministic UI | Dashboard walkthrough |
-| Prepare professional consultation | Lawyer Questions mode | Non-definitive, uncertainty-aware prompts | Question list with disclaimer |
-
-## Evaluation alignment matrix
-
-| Evaluation parameter | Implementation | How evaluator verifies |
-|---|---|---|
-| Code quality | Layered modules, contracts, small dependencies | Directory review and focused tests |
-| Security | Server-only key, validation, safe renderer, limits, injection defense | Security fixtures, source inspection, headers |
-| Efficiency | One narrow AI call per task, bounded text, no database | Request/latency behavior and code review |
-| Testing | Unit, integration, security, edge, manual accessibility | Test report and reproducible fixtures |
-| Accessibility | Semantic HTML, keyboard flow, labels, focus, contrast | Keyboard and screen-reader checklist |
-| Problem alignment | Persona/intent-driven outputs and comparison | Guided demo against matrix above |
-
-## Core product workflow
-
-Authenticated users select a persona and intent, choose a clearly synthetic demo agreement or paste text, and submit one document to the backend. The analysis dashboard presents summary, document information, Attention Radar, important clauses, obligations, dates, lawyer questions, and a generated checklist. Changing persona changes the server-generated priority profile included in the analysis prompt. Outputs are informational and source-oriented.
-
-## Judge workflow
-
-A judge opens the public landing page, selects **Sign in**, enters deployment-configured demo credentials, and reaches the protected workspace. The workspace gives a four-step quick start and clearly labels synthetic demo documents as evaluation-only when those workflows are enabled. The current foundation does not fabricate analysis results; it demonstrates the real login boundary and prepares the actual product path.
-
-## Out of scope for first release
-
-Legal advice, legal validity judgments, jurisdiction-specific conclusions, persistent accounts, unreviewed document sharing, OCR, broad file-format support, autonomous actions, and authoritative legal research.
+- **No Raw Document Storage**: The user's contract text is processed transiently and discarded immediately after analysis.
+- **Structured History**: Only non-sensitive metadata, summaries, and clause explanations are saved to Cloud Firestore for user convenience.
+- **Clear Legal Boundaries**: Prominently displays safety notices clarifying that LegalLens AI provides educational document assistance, not legal advice or attorney representation.

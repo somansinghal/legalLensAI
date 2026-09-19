@@ -1,1 +1,55 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Sign in to the LegalLens AI document workspace."><meta name="theme-color" content="#060a14"><title>Sign in — LegalLens AI</title><link rel="canonical" href="/__DEPLOYMENT_ORIGIN__/login.html"><link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg"><link rel="stylesheet" href="/css/base.css"><link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/responsive.css"><link rel="stylesheet" href="/css/auth.css"><link rel="stylesheet" href="/css/oauth.css"></head><body class="auth-page"><main class="auth-shell"><a class="brand auth-brand" href="/" aria-label="LegalLens AI home"><img src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign"><span class="sr-only">LegalLens AI</span></a><section class="auth-card glass-card" aria-labelledby="login-title"><p class="eyebrow">SECURE DEMO ACCESS</p><h1 id="login-title">Welcome back.</h1><p class="auth-intro">Sign in to enter the LegalLens AI document workspace.</p><a class="google-button" href="/api/auth/google"><span class="google-g" aria-hidden="true">G</span> Continue with Google</a><div class="auth-divider" aria-hidden="true"><span>OR</span></div><form id="loginForm" novalidate><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required><p id="loginError" class="form-error" role="alert" hidden></p><button class="button button-primary full-width" type="submit">Sign in <span aria-hidden="true">→</span></button></form><button id="demoAccess" class="demo-button" type="button">Judge Demo — use configured credentials <span aria-hidden="true">↗</span></button><p class="auth-disclaimer">Demo access is for evaluation only. LegalLens AI provides information and document assistance, not legal advice.</p></section><a class="back-link" href="/">← Return to landing page</a></main><script type="module" src="/js/login.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sign In — LegalLens AI</title>
+  <meta name="description" content="Sign in to LegalLens AI to analyze legal documents in context and explore plain-language document insights.">
+  <meta name="robots" content="noindex, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060a14">
+  <link rel="canonical" href="https://legallensai-india.vercel.app/login.html">
+  <link rel="icon" href="/assets/legallens-ai-logo.jpg" type="image/jpeg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sign In — LegalLens AI">
+  <meta property="og:description" content="Sign in to LegalLens AI to analyze legal documents in context and explore plain-language document insights.">
+  <meta property="og:url" content="https://legallensai-india.vercel.app/login.html">
+  <meta property="og:image" content="https://legallensai-india.vercel.app/assets/legallens-ai-logo.jpg">
+  <meta property="og:image:alt" content="LegalLens AI — Understand Before You Sign">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign In — LegalLens AI">
+  <meta name="twitter:description" content="Sign in to LegalLens AI to analyze legal documents in context and explore plain-language document insights.">
+  <meta name="twitter:image" content="https://legallensai-india.vercel.app/assets/legallens-ai-logo.jpg">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/oauth.css">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+  <a class="brand auth-brand" href="/" aria-label="LegalLens AI home">
+    <img src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+    <span class="sr-only">LegalLens AI</span>
+  </a>
+  <section class="auth-card glass-card" aria-labelledby="login-title">
+    <p class="eyebrow">SECURE DEMO ACCESS</p>
+    <h1 id="login-title">Welcome back.</h1>
+    <p class="auth-intro">Sign in to enter the LegalLens AI document workspace.</p>
+    <a class="google-button" href="/api/auth/google"><span class="google-g" aria-hidden="true">G</span> Continue with Google</a>
+    <div class="auth-divider" aria-hidden="true"><span>OR</span></div>
+    <form id="loginForm" novalidate>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <p id="loginError" class="form-error" role="alert" hidden></p>
+      <button class="button button-primary full-width" type="submit">Sign in <span aria-hidden="true">→</span></button>
+    </form>
+    <button id="demoAccess" class="demo-button" type="button">Judge Demo — use configured credentials <span aria-hidden="true">↗</span></button>
+    <p class="auth-disclaimer">Demo access is for evaluation only. LegalLens AI provides information and document assistance, not legal advice.</p>
+  </section>
+  <a class="back-link" href="/">← Return to landing page</a>
+</main>
+<script type="module" src="/js/login.js"></script>
+</body>
+</html>
