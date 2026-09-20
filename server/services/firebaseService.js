@@ -31,6 +31,7 @@ export function initFirebase() {
   if (existingApps.length > 0) {
     appInstance = getApp();
     firestoreDb = getFirestore(appInstance);
+    try { firestoreDb.settings({ preferRest: true }); } catch {}
     isInitialized = true;
     return firestoreDb;
   }
@@ -67,6 +68,7 @@ export function initFirebase() {
         })
       });
       firestoreDb = getFirestore(appInstance);
+      try { firestoreDb.settings({ preferRest: true }); } catch {}
       isInitialized = true;
       return firestoreDb;
     }
@@ -78,6 +80,7 @@ export function initFirebase() {
         projectId
       });
       firestoreDb = getFirestore(appInstance);
+      try { firestoreDb.settings({ preferRest: true }); } catch {}
       isInitialized = true;
       return firestoreDb;
     }

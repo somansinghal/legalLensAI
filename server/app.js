@@ -10,6 +10,7 @@ import demosRouter from './routes/demos.js';
 import contactRouter from './routes/contact.js';
 import checklistRouter from './routes/checklist.js';
 import userRouter from './routes/user.js';
+import documentsRouter from './routes/documents.js';
 import { initFirebase } from './services/firebaseService.js';
 import { config } from './utils/config.js';
 import { requestContext } from './middleware/requestContext.js';
@@ -56,9 +57,12 @@ export function createApp() {
   initFirebase();
 
   app.use('/api', healthRouter);
-  app.use('/api/auth', authLimiter, authRouter);
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/demo', authLimiter);
+  app.use('/api/auth', authRouter);
   app.use('/api/protected', protectedRouter);
   app.use('/api', aiLimiter, analysisRouter);
+  app.use('/api/documents', documentsRouter);
   app.use('/api', checklistRouter);
   app.use('/api/user', userRouter);
   app.use('/api/demos', demosRouter);

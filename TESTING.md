@@ -18,19 +18,25 @@ The test suite is designed for 100% deterministic local execution without requir
 tests/
   unit/
     ai-pipeline.test.js          Prompt delimiters, JSON parsing, and schema normalization
+    document-parser.test.js      PDF, DOCX, RTF, TXT, MD parser, magic-byte validation, and size limit tests
     firebase.test.js             Firebase Admin initialization, instance reuse, and unconfigured handling
     state.test.js                Frontend UI state immutability and readiness flags
   integration/
     auth.test.js                 Demo credential verification, session creation, and route guarding
     contact-oauth.test.js        Contact form validation and OAuth error handling
+    documents-api.test.js        POST /api/documents/extract with PDF, DOCX, RTF, and formats metadata
     firestore-persistence.test.js User profile, analysis history, checklist sync, and cross-user isolation
     health.test.js               Health endpoint contract and payload size limits
+    oauth-complete.test.js       Comprehensive OAuth states, CSRF, and safe redirect validation
     oauth-success.test.js        Verified Google OpenID callback with mocked token exchange
+    session-hmac.test.js         Stateless cryptographic HMAC session verification across instances
+    user-preferences.test.js     User profile, theme persistence, and route protection
   security/
     security.test.js             HTTP security headers, CSP directives, and server header removal
   e2e/
     auth-flow.spec.js            Login, protected workspace access, and logout
     contact.spec.js              Contact form validation and responsive rendering
+    document-upload-and-tabs.spec.js Tab switching without redirect, demo analysis, DOCX upload, and footer layout
     judge-demo-flow.spec.js      Full product journey: login -> document selection -> analysis -> results -> logout
     landing.spec.js              Landing page structure, logo, disclaimer, and creator attribution
     mobile.spec.js               Responsive mobile layout on iPhone 13 viewport
@@ -44,7 +50,7 @@ tests/
 ```bash
 npm test
 ```
-*Executes all 25 unit & integration tests with zero external configuration (including one-click Judge Demo authentication and Firestore session persistence).*
+*Executes all 55 unit & integration tests with zero external configuration (including document parser, multi-format extraction, HMAC session verification, one-click Judge Demo authentication, and Firestore session persistence).*
 
 ### Playwright End-to-End Tests:
 ```bash

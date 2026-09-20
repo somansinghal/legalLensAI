@@ -33,7 +33,7 @@ export default defineConfig({
     }
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile\.spec\.js/ },
     { name: 'mobile', use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } }, testMatch: /mobile\.spec\.js/ }
   ]
 });

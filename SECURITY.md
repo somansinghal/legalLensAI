@@ -48,11 +48,26 @@ service cloud.firestore {
 ## 4. Authentication & Session Security
 
 - **HttpOnly Cookies**: Session tokens are transmitted via an `HttpOnly`, `SameSite=Lax` cookie (`legallens_session`). Marked `Secure` automatically in `production` environment.
-- **Serverless Session Resilience via Cloud Firestore**: Sessions are stored in Firestore under `sessions/{tokenHash}` using HMAC-SHA256 hashed keys (`tokenHash = HMAC(SESSION_SECRET, token)`), with an in-memory cache and automatic TTL expiration. This ensures session state persists across cold starts and distinct serverless function instances on Vercel without storing credentials in localStorage or sessionStorage.
+- **Serverless Session Resilience via Cloud Firestore & Signed HMAC**: Sessions are stored in Firestore under `sessions/{tokenHash}` using HMAC-SHA256 hashed keys (`tokenHash = HMAC(SESSION_SECRET, token)`), with an in-memory cache and automatic TTL expiration. In addition, session tokens are cryptographically signed using HMAC-SHA256 (`base64url(payload).sig`), allowing serverless lambda containers to verify session authenticity in constant time across instances with zero cold start latency.
 - **Zero Client-Side Credentials**: No tokens, keys, passwords, or user credentials exist in `localStorage` or `sessionStorage`.
 - **Timing-Safe Credential Verification**: Evaluator demo authentication uses `crypto.timingSafeEqual` over SHA-256 hashes to prevent timing attacks.
 - **OAuth 2.0 CSRF Defense**: Google OAuth requests require a cryptographically generated, 32-byte `state` token with a 10-minute time-to-live. States are persisted in Firestore (`oauthStates/{stateHash}`), consumed once, and deleted.
 - **Session Expiration**: Sessions expire automatically after 4 hours of inactivity (`SESSION_TTL_MS = 14,400,000`).
+
+---
+
+## 4.1 Document Ingestion & Parser Security
+
+- **Transient In-Memory Processing**: Uploaded documents (PDF, DOCX, RTF, TXT, MD) are held transiently in memory buffers only during text extraction. Files are **never** written to local disk, temporary directories, or cloud storage buckets.
+- **Magic-Byte Signature Verification**: Before parsing, document buffers undergo header validation against known magic bytes:
+  - PDF: `%PDF-` (`0x25 0x50 0x44 0x46 0x2D`)
+  - DOCX: Zip package signature `PK\x03\x04` (`0x50 0x4B 0x03 0x04`)
+  - RTF: `{\rt` (`0x7B 0x5C 0x72 0x74`)
+  Files with mismatched extensions and binary headers are rejected immediately as corrupted or tampered.
+- **Strict Parsing Boundaries**:
+  - Memory ceiling: 500 KB per uploaded document
+  - Extracted text ceiling: 120,000 characters
+  - Empty or image-only scanned PDFs without extractable text are rejected with clear guidance.
 
 ---
 

@@ -200,7 +200,10 @@ async function loadHistory() {
   if (!historySec || !historyList) return;
 
   try {
-    const res = await fetch('/api/analysis/history');
+    const res = await fetch('/api/analysis/history', {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    });
     if (!res.ok) {
       historySec.hidden = true;
       return;
@@ -232,7 +235,10 @@ async function loadHistory() {
         const prevText = button.textContent;
         button.textContent = 'Loading…';
         try {
-          const detailRes = await fetch(`/api/analysis/history/${id}`);
+          const detailRes = await fetch(`/api/analysis/history/${id}`, {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' }
+          });
           if (!detailRes.ok) throw new Error('Could not load analysis record.');
           const detail = await detailRes.json();
           renderResults(detail.item);
@@ -343,9 +349,9 @@ function initTabs() {
     });
   };
 
-  $('#tabDemo')?.addEventListener('click', () => activate('tabDemo'));
-  $('#tabPaste')?.addEventListener('click', () => activate('tabPaste'));
-  $('#tabUpload')?.addEventListener('click', () => activate('tabUpload'));
+  $('#tabDemo')?.addEventListener('click', (e) => { e.preventDefault(); activate('tabDemo'); });
+  $('#tabPaste')?.addEventListener('click', (e) => { e.preventDefault(); activate('tabPaste'); });
+  $('#tabUpload')?.addEventListener('click', (e) => { e.preventDefault(); activate('tabUpload'); });
 
   // File Upload handling
   const dropZone = $('#dropZone');
@@ -353,29 +359,78 @@ function initTabs() {
   const browseButton = $('#browseButton');
   const uploadFileName = $('#uploadFileName');
 
-  browseButton?.addEventListener('click', () => fileInput?.click());
+  browseButton?.addEventListener('click', (e) => { e.preventDefault(); fileInput?.click(); });
   dropZone?.addEventListener('click', (e) => {
     if (e.target !== browseButton) fileInput?.click();
   });
 
   const handleFile = (file) => {
     if (!file) return;
+    const status = $('#analysisStatus');
+    const error = $('#workspaceError');
+
+    if (error) error.hidden = true;
+    if (uploadFileName) {
+      uploadFileName.textContent = `Uploading & extracting text from “${file.name}”…`;
+      uploadFileName.hidden = false;
+    }
+    status.textContent = `Extracting text from ${file.name}…`;
+
     const reader = new FileReader();
-    reader.onload = (e) => {
-      $('#documentText').value = e.target.result;
-      state.demo = { title: file.name };
-      if (uploadFileName) {
-        uploadFileName.textContent = `Loaded file: ${file.name} (${Math.round(file.size / 1024)} KB)`;
-        uploadFileName.hidden = false;
+    reader.onerror = () => {
+      if (error) {
+        error.textContent = 'Could not read file from your device.';
+        error.hidden = false;
       }
-      activate('tabPaste');
-      $('#analysisStatus').textContent = `File "${file.name}" loaded into workspace. Ready to analyze.`;
+      status.textContent = '';
     };
-    reader.readAsText(file);
+
+    reader.onload = async (e) => {
+      try {
+        const base64Data = e.target.result;
+        const res = await fetch('/api/documents/extract', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            mimeType: file.type,
+            data: base64Data
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error?.message || 'Could not extract text from document.');
+        }
+
+        const doc = data.document;
+        $('#documentText').value = doc.text;
+        state.demo = { title: doc.filename };
+
+        if (uploadFileName) {
+          uploadFileName.textContent = `✓ Successfully parsed “${doc.filename}” (${doc.extension}, ${Math.round(file.size / 1024)} KB, ${doc.wordCount.toLocaleString()} words).`;
+          uploadFileName.hidden = false;
+        }
+
+        activate('tabPaste');
+        status.textContent = `“${doc.filename}” extracted into workspace. Ready to analyze.`;
+        if (error) error.hidden = true;
+      } catch (err) {
+        if (error) {
+          error.textContent = err.message;
+          error.hidden = false;
+        }
+        status.textContent = 'Document upload could not be processed.';
+        if (uploadFileName) uploadFileName.hidden = true;
+      }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   fileInput?.addEventListener('change', (e) => {
-    handleFile(e.target.files[0]);
+    if (e.target.files?.[0]) handleFile(e.target.files[0]);
   });
 
   dropZone?.addEventListener('dragover', (e) => {
@@ -416,6 +471,7 @@ async function analyze() {
   try {
     const response = await fetch('/api/analysis', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
         persona: $('#persona').value,
@@ -445,11 +501,15 @@ async function analyze() {
 
 async function loadSession() {
   try {
-    const response = await fetch('/api/auth/session');
-    if (!response.ok) {
+    const response = await fetch('/api/auth/session', {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    });
+    if (response.status === 401) {
       window.location.assign('/login.html');
       return;
     }
+    if (!response.ok) return;
     const data = await response.json();
     state.user = data.user;
 
@@ -488,7 +548,7 @@ async function loadSession() {
     });
 
     const doLogout = async () => {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
       window.location.assign('/login.html');
     };
     $('#logoutButton')?.addEventListener('click', doLogout);

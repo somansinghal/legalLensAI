@@ -90,3 +90,33 @@
 - **Consequences**:
   - Seamless zero-friction evaluator onboarding.
   - Strict security guarantee: `DEMO_PASSWORD` is never exposed to frontend code, DOM, or client API payloads.
+
+---
+
+## ADR-007: Transient In-Memory Multi-Format Document Ingestion (PDF, DOCX, RTF, TXT, MD)
+
+- **Status**: Accepted
+- **Context**: Legal documents commonly arrive as Word documents (`.docx`) or scanned/rendered PDFs, alongside RTF and plain text. Users need to analyze these files without compromising confidentiality or requiring persistent server storage.
+- **Decision**:
+  1. Implement transient in-memory extraction via `pdf-parse` (PDF) and `mammoth` (DOCX), coupled with a regex-based RTF extractor and UTF-8 text parser.
+  2. Implement binary magic-byte header validation (`%PDF-`, `PK\x03\x04`, `{\rt`) to detect file corruption and prevent MIME-type spoofing before parsing.
+  3. Enforce strict resource boundaries: 500 KB file ceiling and 120,000 extracted character ceiling.
+  4. Never write uploaded files to disk, temporary OS storage, or cloud buckets. All operations execute strictly in transient RAM buffers and populate the workspace textarea.
+- **Consequences**:
+  - Broad format accessibility for real-world legal agreements.
+  - Absolute privacy preservation: raw files vanish from memory immediately upon response dispatch.
+
+---
+
+## ADR-008: Stateless Cryptographic HMAC Session Token Signatures & Firestore REST Mode
+
+- **Status**: Accepted
+- **Context**: In serverless cloud environments (Vercel lambdas), Firestore gRPC over HTTP/2 can experience connection latency or channel permission drops across disparate containers. In-memory caches are isolated per container, risking unexpected session drops during rapid navigation or tab switching.
+- **Decision**:
+  1. Configure Firestore Admin with `preferRest: true` to use standard HTTPS REST transport, bypassing gRPC connection drops.
+  2. Implement dual-layer stateless HMAC-SHA256 session signatures: session tokens are issued in `base64url(payload).signature` format.
+  3. Any serverless lambda instance can instantly verify token validity in constant time using `SESSION_SECRET` without requiring synchronous database roundtrips, while Firestore remains the authoritative store for revocations and TTL.
+- **Consequences**:
+  - Zero session loss across arbitrary serverless lambdas.
+  - Tab navigation and rapid dashboard clicks remain 100% resilient without dropping authentication.
+

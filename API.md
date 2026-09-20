@@ -351,3 +351,60 @@ Receives product inquiries, accessibility flags, and bug reports.
     "message": "Your message has been received. Thank you for contacting LegalLens AI."
   }
   ```
+
+---
+
+## 8. Document Extraction & Parsing Endpoints
+
+### `POST /api/documents/extract`
+Accepts transient Base64 document payload (`.pdf`, `.docx`, `.rtf`, `.txt`, `.md`), validates file signature and size limits, and returns extracted plain text. Raw document files are processed transiently in memory and never persisted to disk or cloud storage.
+
+- **Auth**: Required (`requireAuth`)
+- **Rate Limit**: Standard authenticated rate limiting
+- **Max File Size**: 500 KB (transient memory envelope)
+- **Max Extracted Characters**: 120,000 characters
+- **Supported Formats**: PDF (`application/pdf`), DOCX (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`), RTF (`application/rtf`), TXT (`text/plain`), MD (`text/markdown`)
+- **Request Body**:
+  ```json
+  {
+    "filename": "employment-agreement.docx",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "data": "data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,UEsDBBQABgAIA..."
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "document": {
+      "filename": "employment-agreement.docx",
+      "extension": ".docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text": "EMPLOYMENT AGREEMENT...",
+      "charCount": 2450,
+      "wordCount": 380,
+      "extractedAt": "2026-09-20T10:00:00.000Z"
+    }
+  }
+  ```
+- **Error Codes**:
+  - `UNSUPPORTED_FILE_TYPE` (`400`): File extension or MIME type not supported.
+  - `CORRUPTED_FILE` (`400`): File header magic-bytes signature mismatch.
+  - `FILE_TOO_LARGE` (`413`): Exceeds 500 KB payload ceiling.
+  - `EMPTY_DOCUMENT` (`422`): Document contains no extractable text.
+
+### `GET /api/documents/formats`
+Returns supported file formats, allowed extensions, and processing limits.
+
+- **Auth**: Public
+- **Response `200 OK`**:
+  ```json
+  {
+    "supportedExtensions": [".pdf", ".docx", ".txt", ".md", ".rtf"],
+    "maxFileSizeBytes": 512000,
+    "maxFileSizeFormatted": "500 KB",
+    "maxCharCount": 120000,
+    "storagePolicy": "transient-in-memory-only"
+  }
+  ```
+

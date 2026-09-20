@@ -59,13 +59,14 @@ $$\text{Persona} + \text{Intent} + \text{Document} + \text{Defended AI Pipeline}
 | Feature | Description |
 |---|---|
 | 🧠 **Context-Aware Analysis** | Tailors insights based on 5 personas (Employee, Freelancer, Student, Business Owner, Other) and 5 distinct review intents. |
+| 📁 **Multi-Format Document Upload** | Upload contracts in PDF, DOCX, TXT, Markdown, or RTF with transient in-memory text extraction and magic-byte signature validation. |
 | 🚨 **Attention Radar** | Triages critical clauses into high-attention, review-carefully, or standard advisory buckets. |
 | 📑 **Clause Explorer** | Extracts key provisions, side-by-side with original document excerpts and plain-English translations. |
 | 📅 **Obligations & Dates** | Surfaces contractual duties by party and chronological deadlines, commencement dates, and notice windows. |
 | ⚖️ **Lawyer Preparation** | Generates precise, jurisdiction-aware questions to ask a qualified attorney during consultation. |
 | ✅ **Action Checklist** | Generates contextual next steps with stateful checklist progress synchronized with Cloud Firestore. |
 | 🔥 **Cloud Firestore Persistence** | Automatically stores structured analysis summaries, user profiles, and checklist progress via server-side Firebase Admin. |
-| 🛡️ **Document Privacy by Default** | User document text is processed transiently in memory. Raw document text is **never** persisted to Firestore. |
+| 🛡️ **Document Privacy by Default** | User document text is processed transiently in memory. Raw document text is **never** persisted to disk or Firestore. |
 | 🔐 **Secure Multi-Modal Auth** | Session-based authentication supporting production Google OAuth and a configured zero-friction Judge Demo mode. |
 | 📱 **Responsive & Accessible** | Glassmorphic, dark-mode interface built with semantic HTML5, keyboard navigation, and full mobile optimization. |
 

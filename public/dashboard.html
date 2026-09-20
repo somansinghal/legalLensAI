@@ -161,11 +161,12 @@
         <div id="dropZone" class="upload-zone">
           <span class="upload-icon" aria-hidden="true">▤</span>
           <strong>Drag & drop a legal document, or browse</strong>
-          <p class="muted" style="margin:0.35rem 0 0.85rem;font-size:0.8rem;">Supports .txt, .md, .doc text files (transient processing only — raw text is never stored)</p>
-          <input type="file" id="fileInput" accept=".txt,.md,.text" style="display:none;">
+          <p class="muted" style="margin:0.35rem 0 0.85rem;font-size:0.8rem;">Supports PDF, DOCX, TXT, MD, and RTF (transient in-memory processing only — raw files are never stored)</p>
+          <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.md,.rtf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/rtf,text/plain,text/markdown" style="display:none;">
           <button id="browseButton" class="button button-secondary" type="button">Select file from computer</button>
         </div>
         <p id="uploadFileName" class="status-message" style="margin-top:0.75rem;" hidden></p>
+        <div id="uploadFileInfo" class="upload-file-info" style="margin-top:0.75rem;" hidden></div>
       </div>
     </div>
 
@@ -195,18 +196,18 @@
 </main>
 
 <footer class="site-footer section-shell">
-  <div class="footer-brand">
-    <a class="brand" href="/" aria-label="LegalLens AI home">
-      <img class="footer-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
-      <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
-    </a>
-    <p>Understand before you sign.</p>
-  </div>
+  <div class="site-footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="/" aria-label="LegalLens AI home">
+        <img class="footer-logo" src="/assets/legallens-ai-logo.jpg" alt="LegalLens AI — Understand Before You Sign">
+        <span><strong>LEGAL<span class="accent-text">LENS</span></strong></span>
+      </a>
+      <p>Understand before you sign. AI document intelligence with context-aware analysis.</p>
+    </div>
 
-  <div class="footer-columns" style="display:flex;gap:3rem;flex-wrap:wrap;">
     <div class="footer-col">
-      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">PRODUCT</strong>
-      <nav style="display:grid;gap:0.4rem;" aria-label="Product navigation">
+      <strong class="footer-heading">PRODUCT</strong>
+      <nav aria-label="Product navigation">
         <a href="#analysis-workspace">Workspace</a>
         <a href="#historySection">History</a>
         <a href="/account.html">Account</a>
@@ -215,8 +216,8 @@
     </div>
 
     <div class="footer-col">
-      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">LEGAL</strong>
-      <nav style="display:grid;gap:0.4rem;" aria-label="Legal pages">
+      <strong class="footer-heading">LEGAL</strong>
+      <nav aria-label="Legal pages">
         <a href="/privacy.html">Privacy Policy</a>
         <a href="/terms.html">Terms of Use</a>
         <a href="/disclaimer.html">Legal Disclaimer</a>
@@ -225,8 +226,8 @@
     </div>
 
     <div class="footer-col">
-      <strong style="color:var(--text);font-size:0.75rem;letter-spacing:0.08em;display:block;margin-bottom:0.65rem;">CONNECT</strong>
-      <nav style="display:grid;gap:0.4rem;" aria-label="Creator links">
+      <strong class="footer-heading">CONNECT</strong>
+      <nav aria-label="Creator links">
         <a href="https://somansinghal.vercel.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
         <a href="https://github.com/somansinghal" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         <a href="https://www.linkedin.com/in/soman-singhal" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
@@ -235,9 +236,9 @@
     </div>
   </div>
 
-  <div class="creator-credit" style="width:100%;border-top:1px solid var(--line);padding-top:1.5rem;margin-top:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <div class="creator-credit footer-bottom">
     <span>Built by <strong>Soman Singhal</strong></span>
-    <p class="footer-meta" style="margin:0;">© 2026 LegalLens AI · Context-aware document intelligence.</p>
+    <p class="footer-meta">© 2026 LegalLens AI · Context-aware document intelligence.</p>
   </div>
   <p class="footer-disclaimer">LegalLens AI provides legal information and document assistance. It does not provide legal advice or replace a qualified legal professional.</p>
 </footer>

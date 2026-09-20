@@ -9,6 +9,8 @@ temporary/
 coverage/
 artifacts/
 playwright-report/
+test-results/
+uploads/
 .DS_Store
 Thumbs.db
 *.log

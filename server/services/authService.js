@@ -23,6 +23,38 @@ const getStateHash = (state) => {
   return crypto.createHmac('sha256', secret).update(state).digest('hex');
 };
 
+const revokedTokens = new Set();
+
+const signToken = (payload) => {
+  const secret = process.env.SESSION_SECRET || 'legallens-session-salt';
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', secret).update(encodedPayload).digest('base64url');
+  return `${encodedPayload}.${signature}`;
+};
+
+const verifySignedToken = (token) => {
+  if (typeof token !== 'string' || !token.includes('.')) return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [encodedPayload, providedSig] = parts;
+  const secret = process.env.SESSION_SECRET || 'legallens-session-salt';
+  const expectedSig = crypto.createHmac('sha256', secret).update(encodedPayload).digest('base64url');
+
+  if (providedSig.length !== expectedSig.length) return null;
+  const left = Buffer.from(providedSig);
+  const right = Buffer.from(expectedSig);
+  if (!crypto.timingSafeEqual(left, right)) return null;
+
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf-8'));
+    if (!payload || typeof payload !== 'object') return null;
+    if (typeof payload.expiresAt !== 'number' || payload.expiresAt <= Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+};
+
 export function verifyDemoCredentials(email, password) {
   const expectedEmail = process.env.DEMO_EMAIL;
   const expectedPassword = process.env.DEMO_PASSWORD;
@@ -30,7 +62,7 @@ export function verifyDemoCredentials(email, password) {
 }
 
 export async function createSession(userData) {
-  const token = crypto.randomBytes(32).toString('hex');
+  const nonce = crypto.randomBytes(16).toString('hex');
   const isString = typeof userData === 'string';
   const email = isString ? userData : userData.email;
   const userId = (!isString && userData.userId)
@@ -49,6 +81,7 @@ export async function createSession(userData) {
     createdAt: Date.now()
   };
 
+  const token = signToken({ ...sessionRecord, nonce });
   sessions.set(token, sessionRecord);
 
   const db = getFirestoreDb();
@@ -57,7 +90,7 @@ export async function createSession(userData) {
       const tokenHash = getTokenHash(token);
       await db.collection('sessions').doc(tokenHash).set(sessionRecord);
     } catch {
-      // Graceful fallback to in-memory cache
+      // Graceful fallback to in-memory / cryptographic verification
     }
   }
 
@@ -66,6 +99,7 @@ export async function createSession(userData) {
 
 export async function getSession(token) {
   if (!token) return null;
+  if (revokedTokens.has(token)) return null;
 
   // 1. Fast in-memory cache check
   const cached = sessions.get(token);
@@ -81,7 +115,36 @@ export async function getSession(token) {
     return { ...cached };
   }
 
-  // 2. Serverless instance retrieval from Firestore
+  // 2. Cryptographic signature check (ensures zero session loss across serverless instances)
+  const verified = verifySignedToken(token);
+  if (verified) {
+    const db = getFirestoreDb();
+    if (db) {
+      try {
+        const tokenHash = getTokenHash(token);
+        const doc = await db.collection('sessions').doc(tokenHash).get();
+        if (!doc.exists) {
+          // Explicitly removed from persistent store
+          return null;
+        }
+        const remoteData = doc.data();
+        if (remoteData.expiresAt <= Date.now()) {
+          await db.collection('sessions').doc(tokenHash).delete().catch(() => null);
+          return null;
+        }
+        sessions.set(token, remoteData);
+        return { ...remoteData };
+      } catch {
+        // Firestore unreachable/offline; fall back gracefully to verified cryptographic token
+        sessions.set(token, verified);
+        return { ...verified };
+      }
+    }
+    sessions.set(token, verified);
+    return { ...verified };
+  }
+
+  // 3. Fallback for raw/legacy tokens via Firestore
   const db = getFirestoreDb();
   if (db) {
     try {
@@ -107,6 +170,7 @@ export async function getSession(token) {
 
 export async function destroySession(token) {
   if (!token) return;
+  revokedTokens.add(token);
   sessions.delete(token);
 
   const db = getFirestoreDb();
@@ -167,4 +231,5 @@ export async function consumeOAuthState(state) {
 export function clearSessionsForTests() {
   sessions.clear();
   oauthStates.clear();
+  revokedTokens.clear();
 }
