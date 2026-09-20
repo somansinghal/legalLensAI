@@ -1,6 +1,4 @@
 import { AppError } from '../utils/errors.js';
-import { PDFParse } from 'pdf-parse';
-import mammoth from 'mammoth';
 
 export const MAX_DOCUMENT_BYTES = Number(process.env.MAX_DOCUMENT_BYTES) || 500_000;
 export const MAX_DOCUMENT_CHARS = Number(process.env.MAX_DOCUMENT_CHARS) || 120_000;
@@ -16,6 +14,12 @@ export const SUPPORTED_MIME_TYPES = Object.freeze([
   'text/markdown',
   'application/octet-stream'
 ]);
+
+export function getFileExtension(filename) {
+  const name = String(filename || '').trim().toLowerCase();
+  const extMatch = name.match(/\.[a-z0-9]+$/);
+  return extMatch ? extMatch[0] : '';
+}
 
 /**
  * Validates magic bytes / file signature to verify file content matches extension.
@@ -100,28 +104,27 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
     throw new AppError(
       413,
       'FILE_TOO_LARGE',
-      `The uploaded file exceeds the ${Math.round(MAX_DOCUMENT_BYTES / 1024)} KB size limit.`
+      `The uploaded file exceeds the ${Math.round(MAX_DOCUMENT_BYTES / 1024)} KB limit. Please upload a smaller agreement excerpt.`
     );
   }
 
-  const name = String(filename || 'Uploaded Document').trim();
-  const lowerName = name.toLowerCase();
-  const extMatch = lowerName.match(/\.[a-z0-9]+$/);
-  const extension = extMatch ? extMatch[0] : '';
-
+  const cleanFilename = String(filename || 'Uploaded Document').trim();
+  const extension = getFileExtension(cleanFilename);
   if (!SUPPORTED_EXTENSIONS.includes(extension)) {
     throw new AppError(
       415,
       'UNSUPPORTED_FORMAT',
-      'Unsupported file format. LegalLens AI accepts PDF, DOCX, TXT, MD, and RTF documents.'
+      `Unsupported file format. LegalLens AI accepts PDF, DOCX, TXT, MD, and RTF documents.`
     );
   }
 
-  if (!validateFileSignature(buffer, extension)) {
+  // Magic-byte signature verification
+  const isValidSignature = validateFileSignature(buffer, extension);
+  if (!isValidSignature) {
     throw new AppError(
       400,
       'CORRUPTED_FILE',
-      `The file contents do not match the expected ${extension.toUpperCase().slice(1)} format. Please ensure the file is valid and not corrupted.`
+      `The file header does not match the "${extension}" extension. The file may be damaged or renamed.`
     );
   }
 
@@ -131,15 +134,17 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
     switch (extension) {
       case '.pdf': {
         try {
+          const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
           const uint8 = new Uint8Array(buffer);
-          const parser = new PDFParse(uint8);
-          await parser.load();
-          const parsed = await parser.getText();
-          if (Array.isArray(parsed?.pages) && parsed.pages.length > 0) {
-            rawExtractedText = parsed.pages.map((p) => p.text || '').join('\n\n');
-          } else if (typeof parsed?.text === 'string') {
-            rawExtractedText = parsed.text;
+          const doc = await pdfjsLib.getDocument({ data: uint8 }).promise;
+          const pageTexts = [];
+          for (let i = 1; i <= doc.numPages; i++) {
+            const page = await doc.getPage(i);
+            const content = await page.getTextContent();
+            const pageStr = content.items.map((it) => it.str).join(' ');
+            if (pageStr.trim()) pageTexts.push(pageStr.trim());
           }
+          rawExtractedText = pageTexts.join('\n\n');
         } catch (pdfErr) {
           const msg = String(pdfErr?.message || pdfErr?.name || '').toLowerCase();
           if (msg.includes('password') || msg.includes('encrypted')) {
@@ -161,7 +166,8 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
 
       case '.docx': {
         try {
-          const result = await mammoth.extractRawText({ buffer });
+          const mammoth = await import('mammoth');
+          const result = await (mammoth.default || mammoth).extractRawText({ buffer });
           rawExtractedText = result.value || '';
         } catch (docxErr) {
           throw new AppError(422, 'DOCX_PARSE_FAILED', 'The DOCX file could not be parsed. Please verify the document is valid and not corrupted.');
@@ -222,7 +228,7 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
   const wordCount = normalizedText.split(/\s+/).filter(Boolean).length;
 
   return {
-    filename: name.slice(0, 120),
+    filename: cleanFilename.slice(0, 120),
     extension: extension.slice(1).toUpperCase(),
     characterCount: normalizedText.length,
     wordCount,

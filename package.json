@@ -22,7 +22,7 @@
     "helmet": "^8.0.0",
     "mammoth": "^1.12.3",
     "nodemailer": "^10.0.10",
-    "pdf-parse": "^2.4.5"
+    "pdfjs-dist": "^6.3.289"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"
