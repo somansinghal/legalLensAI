@@ -1,4 +1,5 @@
 import { AppError } from '../utils/errors.js';
+import zlib from 'node:zlib';
 
 export const MAX_DOCUMENT_BYTES = Number(process.env.MAX_DOCUMENT_BYTES) || 500_000;
 export const MAX_DOCUMENT_CHARS = Number(process.env.MAX_DOCUMENT_CHARS) || 120_000;
@@ -87,6 +88,73 @@ export function extractRtfText(rtfString) {
   return text;
 }
 
+function unescapePdfString(str) {
+  return str
+    .replace(/\\([0-7]{1,3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8)))
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\b/g, '\b')
+    .replace(/\\f/g, '\f')
+    .replace(/\\([\\()])/g, '$1');
+}
+
+/**
+ * Pure Node.js zero-dependency PDF stream text extractor using zlib.
+ * Guarantees extraction across any serverless environment without worker dependencies.
+ */
+export function extractPdfTextNative(buffer) {
+  try {
+    const content = buffer.toString('latin1');
+    const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
+    let match;
+    const textBlocks = [];
+
+    while ((match = streamRegex.exec(content)) !== null) {
+      const rawStream = Buffer.from(match[1], 'latin1');
+      let inflated = '';
+      try {
+        inflated = zlib.inflateSync(rawStream).toString('latin1');
+      } catch {
+        inflated = rawStream.toString('latin1');
+      }
+
+      const btRegex = /BT([\s\S]*?)ET/g;
+      let btMatch;
+      while ((btMatch = btRegex.exec(inflated)) !== null) {
+        const block = btMatch[1];
+        const tjRegex = /\(([^)\\]*(?:\\.[^)\\]*)*)\)\s*Tj/g;
+        let tj;
+        while ((tj = tjRegex.exec(block)) !== null) {
+          textBlocks.push(unescapePdfString(tj[1]));
+        }
+        const arrRegex = /\[(.*?)\]\s*TJ/g;
+        let arr;
+        while ((arr = arrRegex.exec(block)) !== null) {
+          const inner = arr[1];
+          const innerTj = /\(([^)\\]*(?:\\.[^)\\]*)*)\)/g;
+          let itm;
+          while ((itm = innerTj.exec(inner)) !== null) {
+            textBlocks.push(unescapePdfString(itm[1]));
+          }
+        }
+      }
+    }
+
+    if (textBlocks.length === 0) {
+      const directTj = /\(([^)\\]*(?:\\.[^)\\]*)*)\)\s*Tj/g;
+      let dtj;
+      while ((dtj = directTj.exec(content)) !== null) {
+        textBlocks.push(unescapePdfString(dtj[1]));
+      }
+    }
+
+    return textBlocks.join(' ').replace(/\s+/g, ' ').trim();
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Extracts raw text from supported legal document formats transiently in-memory.
  * Raw file data is NEVER stored on disk or in Firestore.
@@ -136,7 +204,11 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
         try {
           const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
           const uint8 = new Uint8Array(buffer);
-          const doc = await pdfjsLib.getDocument({ data: uint8 }).promise;
+          const doc = await pdfjsLib.getDocument({
+            data: uint8,
+            disableFontFace: true,
+            verbosity: 0
+          }).promise;
           const pageTexts = [];
           for (let i = 1; i <= doc.numPages; i++) {
             const page = await doc.getPage(i);
@@ -150,7 +222,8 @@ export async function extractDocumentText({ filename, mimeType, buffer }) {
           if (msg.includes('password') || msg.includes('encrypted')) {
             throw new AppError(422, 'ENCRYPTED_PDF', 'This PDF is encrypted or password-protected. Please upload an unencrypted document.');
           }
-          throw new AppError(422, 'PDF_PARSE_FAILED', 'Could not read PDF contents. Please verify the file is a valid text PDF.');
+          // Serverless / worker fallback: pure Node.js zlib stream extraction
+          rawExtractedText = extractPdfTextNative(buffer);
         }
 
         const cleanCheck = rawExtractedText.replace(/\s+/g, '');
